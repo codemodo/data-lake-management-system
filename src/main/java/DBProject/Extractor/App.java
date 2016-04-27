@@ -136,6 +136,29 @@ public class App {
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}
 	}
+	
+	public static int getMaxNodeId() {
+		int id = -1;
+		try {
+			String sql = "SELECT MAX(id) AS maxId FROM node_table";
+			ResultSet rs = stmt.executeQuery(sql);
+			if(rs.next()) {
+				id = rs.getInt("maxId");
+			}
+			else {
+				id = 0;
+			}
+			System.out.println("id is " + id);
+		
+		} catch (SQLException ex) {
+    	    // handle any errors
+			System.err.println("Error getting max nodeId.");
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	    System.out.println("SQLState: " + ex.getSQLState());
+    	    System.out.println("VendorError: " + ex.getErrorCode());
+    	} 
+		return id;
+	}
 
 	public static void main(String[] args) {
 		// File input = new File(args[0]);
@@ -196,13 +219,13 @@ public class App {
 			for (CSVRecord record : parser) {
 				tupleNumber++;
 				int tupleID = getTupleID(tupleNumber, docID);
-				addToLinkTable(docID, tupleID);
+				addToEdgeTable(docID, tupleID,docID);
 
 				for (String key : headers.keySet()) {
 					String value = record.get(key);
 					int leafID = getNodeID(key, value, docID, tupleID);
 					addToNodeTable(leafID, key, value, docID);
-					addToLinkTable(tupleID, leafID);
+					addToEdgeTable(tupleID, leafID, docID);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -355,68 +378,60 @@ public class App {
 	public void storeXmlNode(Node node) {
 
 	}
+	
+	public static void createConnection() {
+    	try {
+    		
+    	    conn = DriverManager.getConnection("jdbc:mysql://datalake.c2lclaii6yaq.us-west-2.rds.amazonaws.com/Datalake", "admin", "testing1234");
+    	    stmt = conn.createStatement();
+    	    
+    	} catch (SQLException ex) {
+    	    // handle any errors
+    		System.err.println("Error connecting to database.");
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	    System.out.println("SQLState: " + ex.getSQLState());
+    	    System.out.println("VendorError: " + ex.getErrorCode());
+    	} 
+    }
 
-	public static void createConnAndUpdateTable(String statement) {
-		Connection conn = null;
-		Statement stmt = null;
-		try {
-			String databaseURL = "ec2-50-19-202-216.compute-1.amazonaws.com";
-			String databaseName = "EMP";
-			String user = "ryan";
-			String password = "mysqladmin";
-
-			conn = DriverManager.getConnection("jdbc:mysql://" + databaseURL
-					+ "/" + databaseName, user, password);
-			// ABOVE can also be used w/ query string syntax:
-			// "jdbc:mysql://ec2-50-19-202-216.compute-1.amazonaws.com/EMP?user=ryan&password=mysqladmin"
-
-			// create a statement and query
-			stmt = conn.createStatement();
-			stmt.executeUpdate(statement);
-
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					conn.close();
-			} catch (SQLException se) {
-			}// do nothing
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
-	}
-
-	public static void createConnAndCreateTable(String createTableStatement) {
-		createConnAndUpdateTable(createTableStatement);
-	}
-
-	public static void createConnAndAddToTable(String updateStatement) {
-		createConnAndUpdateTable(updateStatement);
-	}
+	
 
 	public static void addToNodeTable(int nodeID, String key, String value,
 			int docID) {
-		String statement = "INSERT INTO Node_Table VALUES (" + nodeID + ", "
-				+ key + ", " + value + ", " + docID + ")";
-		System.out.println(statement);
-		// createConnAndAddToTable(statement);
+		try {
+			String sql = "INSERT INTO node_table " +
+                "VALUES (" + nodeID + ", '" + key + "', '" + value + "', " + docID + ")";
+		stmt.executeUpdate(sql);
+		
+		} catch (SQLException ex) {
+    	    // handle any errors
+			System.err.println("Error inserting row into node table.");
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	    System.out.println("SQLState: " + ex.getSQLState());
+    	    System.out.println("VendorError: " + ex.getErrorCode());
+    	} 
 	}
 
-	public static void addToLinkTable(int parentNode, int childNode) {
-		String statement = "INSERT INTO Link_Table VALUES (" + parentNode
-				+ ", " + childNode + ")";
-		System.out.println(statement);
-		// createConnAndAddToTable(statement);
+	public static void addToEdgeTable(int parentNode, int childNode, int docID) {
+		try {
+			String sql = "SELECT * FROM edge_table WHERE parent_node=" + parentNode + " AND child_node=" + childNode;
+			ResultSet rs = stmt.executeQuery(sql);
+            if(rs.next()) {
+                System.err.println("This edge pair already exists in database.");
+            }
+            else {
+            	sql = "INSERT INTO edge_table " +
+                      "VALUES (" + parentNode + ", " + childNode + ", " + docID + ")";
+            	stmt.executeUpdate(sql);
+            }   
+		
+		} catch (SQLException ex) {
+    	    // handle any errors
+			System.err.println("Error inserting row into edge table.");
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	    System.out.println("SQLState: " + ex.getSQLState());
+    	    System.out.println("VendorError: " + ex.getErrorCode());
+    	} 
 	}
 
 	public static void addToInvertedIndex(String word, int nodeID) {
@@ -425,5 +440,64 @@ public class App {
 		System.out.println(statement);
 		// createConnAndAddToTable(statement);
 	}
+	
+	public static void getTableNames() {
+        try {
+
+            DatabaseMetaData dbmd = conn.getMetaData();
+            String[] types = {"TABLE"};
+            ResultSet rs = dbmd.getTables(null, null, "%", types);
+            while(rs.next()) {
+                System.out.println(rs.getString("TABLE_NAME"));
+            }
+        } 
+            catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	public static void getColumnNames(String table) {
+        try {
+
+            DatabaseMetaData dbmd = conn.getMetaData();
+            ResultSet rs = dbmd.getColumns(null, null, "edge_table", null);
+            while(rs.next()) {
+                System.out.println(rs.getString("COLUMN_NAME"));
+            }
+        } 
+            catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	public static void deleteTable(String table) {
+    	try {
+    		String sql = "DROP TABLE " + table;
+    		stmt.executeUpdate(sql);
+    		//sql="SELECT * FROM " + table;
+    		//stmt.executeQuery(sql);
+    	    
+    	} catch (SQLException ex) {
+    	    // handle any errors
+    		System.err.println("Error deleting " + table + " from database.");
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	    System.out.println("SQLState: " + ex.getSQLState());
+    	    System.out.println("VendorError: " + ex.getErrorCode());
+    	}      
+	}
+	
+	public static void closeConnection() {
+    	try {
+    	    conn.close();
+    	    stmt.close();
+    	    
+    	} catch (SQLException ex) {
+    	    // handle any errors
+    		System.err.println("Error closing connection to database.");
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	    System.out.println("SQLState: " + ex.getSQLState());
+    	    System.out.println("VendorError: " + ex.getErrorCode());
+    	} 
+    }
 
 }
