@@ -55,14 +55,18 @@ public class App {
 		// File input = new File(
 		// "/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
 		File input = new File(
-				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016.csv");
+				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.csv");
 
 		dbc.createConnection();
+		dbc.deleteTable("edge_table");
+		dbc.deleteTable("node_table");
+		
 		dbc.createNodeTable();
 		dbc.createEdgeTable();
 		
 		parseFile(input);
-		
+		dbc.printTable("node_table");
+		dbc.printTable("edge_table");
 		dbc.closeConnection();
 	}
 
@@ -111,6 +115,7 @@ public class App {
 				tupleNumber++;
 				int tupleID = getTupleID(tupleNumber, docID);
 				dbc.addToEdgeTable(docID, tupleID,docID);
+				dbc.addToNodeTable(tupleID, "", "", docID);
 
 				for (String key : headers.keySet()) {
 					String value = record.get(key);

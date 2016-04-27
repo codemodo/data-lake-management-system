@@ -3,9 +3,11 @@ package DBProject.Extractor;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.ResultSetMetaData;
 
 public class DatabaseConnector {
 	
@@ -90,7 +92,7 @@ public class DatabaseConnector {
 		try {
 			String sql = "CREATE TABLE IF NOT EXISTS edge_table "
 					+ "(parent_node INTEGER, " + " child_node INTEGER, "
-					+ " doc_id INTEGER, " + " PRIMARY KEY (parent_node))";
+					+ " doc_id INTEGER, " + " PRIMARY KEY (parent_node, child_node))";
 
 			stmt.executeUpdate(sql);
 
@@ -141,14 +143,37 @@ public class DatabaseConnector {
     	} 
     }
 
-	
+	public static void printTable(String table) {
+		try {
+			String sql = "SELECT * FROM " + table;
+			ResultSet rs = stmt.executeQuery(sql);
+			ResultSetMetaData rsmd = rs.getMetaData();
+			int columnsNumber = rsmd.getColumnCount();
+			System.out.println("TABLE: " + table + " # of columns: " + columnsNumber);
+			while(rs.next()) {
+				for(int i = 1; i <= columnsNumber; i++) {
+					System.out.print(rs.getString(i) + " ");
+				}
+				System.out.println();
+			}
+		} catch (SQLException ex) {
+    	    // handle any errors
+			System.err.println("Error printing table.");
+    	    System.out.println("SQLException: " + ex.getMessage());
+    	    System.out.println("SQLState: " + ex.getSQLState());
+    	    System.out.println("VendorError: " + ex.getErrorCode());
+    	} 
+		
+	}
 
 	public static void addToNodeTable(int nodeID, String key, String value,
 			int docID) {
 		try {
 			String sql = "INSERT INTO node_table " +
                 "VALUES (" + nodeID + ", '" + key + "', '" + value + "', " + docID + ")";
-		stmt.executeUpdate(sql);
+			PreparedStatement ps = conn.prepareStatement(sql);
+			
+			ps.executeUpdate(sql);
 		
 		} catch (SQLException ex) {
     	    // handle any errors
