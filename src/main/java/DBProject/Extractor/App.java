@@ -42,13 +42,109 @@ import java.util.Map;
  *
  */
 public class App {
+
+	public static Connection conn = null;
+	public static Statement stmt = null;
+
+	public static void createNodeTable() {
+
+		try {
+			String sql = "CREATE TABLE IF NOT EXISTS node_table "
+					+ "(id INTEGER, " + " k VARCHAR(255), "
+					+ " v VARCHAR(255), " + " doc_id INTEGER, "
+					+ " PRIMARY KEY (id))";
+
+			stmt.executeUpdate(sql);
+
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error in creating node table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
+	public static void createWordTable() {
+
+		try {
+			String sql = "CREATE TABLE IF NOT EXISTS word_table "
+					+ "(id INTEGER, " + " word VARCHAR(255), "
+					+ " PRIMARY KEY (id))";
+
+			stmt.executeUpdate(sql);
+
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error in creating word table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
+	public static void createIIWordTable() {
+
+		try {
+			String sql = "CREATE TABLE IF NOT EXISTS ii_word_table "
+					+ "(word_id INTEGER, " + " word VARCHAR(255), "
+					+ " PRIMARY KEY (id))";
+
+			stmt.executeUpdate(sql);
+
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error in creating inverted index word table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
+	public static void createIINodeTable() {
+
+		try {
+			String sql = "CREATE TABLE IF NOT EXISTS ii_node_table "
+					+ "(node_id INTEGER, " + " word_id INTEGER, "
+					+ " PRIMARY KEY (node_id, word_id))";
+
+			stmt.executeUpdate(sql);
+
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error in creating inverted index node table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
+	public static void createEdgeTable() {
+
+		try {
+			String sql = "CREATE TABLE IF NOT EXISTS edge_table "
+					+ "(parent_node INTEGER, " + " child_node INTEGER, "
+					+ " doc_id INTEGER, " + " PRIMARY KEY (parent_node))";
+
+			stmt.executeUpdate(sql);
+
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error in creating edge table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
 	public static void main(String[] args) {
 		// File input = new File(args[0]);
-//		File input = new File(
-//				"/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
-//		File input = new File(
-//				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
-		File input = new File("/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016.csv");
+		// File input = new File(
+		// "/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
+		// File input = new File(
+		// "/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
+		File input = new File(
+				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016.csv");
 		// createConnAndCreateTable("");
 		// parseWithJaxp(input);
 		parseFile(input);
@@ -77,31 +173,32 @@ public class App {
 
 	public static boolean parseFile(File file) {
 
-//		if (!parseWithJackson(file)) {
-//			if (!parseWithJaxp(file)) {
-				if (!parseWithCommonsCSV(file)) {
-					if (!parseWithTika(file)) {
-						return false;
-					}
-				}
-//			}
-//		}
+		// if (!parseWithJackson(file)) {
+		// if (!parseWithJaxp(file)) {
+		if (!parseWithCommonsCSV(file)) {
+			if (!parseWithTika(file)) {
+				return false;
+			}
+		}
+		// }
+		// }
 		return true;
 	}
 
 	private static boolean parseWithCommonsCSV(File file) {
 		try {
-			CSVParser parser = new CSVParser(new FileReader(file), CSVFormat.DEFAULT.withHeader());
-			Map<String,Integer> headers = parser.getHeaderMap();
+			CSVParser parser = new CSVParser(new FileReader(file),
+					CSVFormat.DEFAULT.withHeader());
+			Map<String, Integer> headers = parser.getHeaderMap();
 			int docID = getDocID(file);
 			addToNodeTable(docID, "", "", docID);
 			int tupleNumber = 0;
-			for (CSVRecord record : parser){
+			for (CSVRecord record : parser) {
 				tupleNumber++;
 				int tupleID = getTupleID(tupleNumber, docID);
 				addToLinkTable(docID, tupleID);
 
-				for (String key : headers.keySet()){
+				for (String key : headers.keySet()) {
 					String value = record.get(key);
 					int leafID = getNodeID(key, value, docID, tupleID);
 					addToNodeTable(leafID, key, value, docID);
@@ -118,19 +215,19 @@ public class App {
 
 		return true;
 	}
-	
-	static int getDocID(File file){
-		//TODO
+
+	static int getDocID(File file) {
+		// TODO
 		return file.hashCode();
 	}
-	
-	static int getTupleID(int tupleNumber, int docID){
-		//TODO
+
+	static int getTupleID(int tupleNumber, int docID) {
+		// TODO
 		return (Integer.toString(tupleNumber) + docID).hashCode();
 	}
-	
-	static int getNodeID(String key, String value, int docID, int parentNodeID){
-		//TODO
+
+	static int getNodeID(String key, String value, int docID, int parentNodeID) {
+		// TODO
 		return (key + value + docID + parentNodeID).hashCode();
 	}
 
@@ -138,7 +235,7 @@ public class App {
 		// TODO Auto-generated method stub
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//		dbf.setValidating(true);
+		// dbf.setValidating(true);
 		dbf.setNamespaceAware(true);
 
 		try {
@@ -146,7 +243,7 @@ public class App {
 			Document document = builder.parse(file);
 			Node root = document.getDocumentElement();
 			parseWithJaxp(root);
-			
+
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -154,19 +251,19 @@ public class App {
 		}
 
 	}
-	
-	static void parseWithJaxp(Node node){
+
+	static void parseWithJaxp(Node node) {
 		System.out.println("value: " + node.getNodeValue());
 		System.out.println("type: " + node.getNodeType());
 		NodeList children = null;
-		if (node.hasChildNodes()){
+		if (node.hasChildNodes()) {
 			children = node.getChildNodes();
 		}
 
-		System.out.println("nodename: " + ((Element) node).getNodeName());	
+		System.out.println("nodename: " + ((Element) node).getNodeName());
 
-		if (children != null){
-			for(int i = 0; i < children.getLength(); i++){
+		if (children != null) {
+			for (int i = 0; i < children.getLength(); i++) {
 				parseWithJaxp(children.item(i));
 			}
 		}
@@ -175,29 +272,29 @@ public class App {
 	private static boolean parseWithJackson(File file) {
 		// TODO Auto-generated method stub
 		ObjectMapper m = new ObjectMapper();
-//		JsonParserFactor jpf = Json.createParserFactory();
+		// JsonParserFactor jpf = Json.createParserFactory();
 		JsonNode rootNode;
 		try {
 			rootNode = m.readTree(file);
 			parseJsonTree2(rootNode);
-//			// lets see what type the node is
-//	        System.out.println(rootNode.getNodeType()); // prints OBJECT
-//	        // is it a container
-//	        System.out.println(rootNode.isContainerNode()); // prints true
-//	        System.out.println(rootNode.textValue());
-//	        Iterator<String> fieldNames = rootNode.fieldNames();
-//	        Iterator<JsonNode> childNodes = rootNode.elements();
-//	        while (fieldNames.hasNext()){
-//	        	String fieldName = fieldNames.next();
-//	        	System.out.println(fieldName);
-//	        }
-//	        while(childNodes.hasNext()){
-//	        	JsonNode child = childNodes.next();
-//	        	System.out.println(child.textValue());
-//	        }
-//	        
-//	        
-//			parseJsonTree(rootNode);
+			// // lets see what type the node is
+			// System.out.println(rootNode.getNodeType()); // prints OBJECT
+			// // is it a container
+			// System.out.println(rootNode.isContainerNode()); // prints true
+			// System.out.println(rootNode.textValue());
+			// Iterator<String> fieldNames = rootNode.fieldNames();
+			// Iterator<JsonNode> childNodes = rootNode.elements();
+			// while (fieldNames.hasNext()){
+			// String fieldName = fieldNames.next();
+			// System.out.println(fieldName);
+			// }
+			// while(childNodes.hasNext()){
+			// JsonNode child = childNodes.next();
+			// System.out.println(child.textValue());
+			// }
+			//
+			//
+			// parseJsonTree(rootNode);
 			return true;
 		} catch (JsonProcessingException e) {
 			return false;
@@ -207,14 +304,14 @@ public class App {
 			return false;
 		}
 	}
-	
-	public static void parseJsonTree2(JsonNode node){
+
+	public static void parseJsonTree2(JsonNode node) {
 		Iterator<JsonNode> childNodes = node.elements();
-        while(childNodes.hasNext()){
-        	JsonNode child = childNodes.next();
-        	System.out.println(child.textValue());
-        	parseJsonTree2(child);
-        }
+		while (childNodes.hasNext()) {
+			JsonNode child = childNodes.next();
+			System.out.println(child.textValue());
+			parseJsonTree2(child);
+		}
 	}
 
 	public static void parseJsonTree(JsonNode node) {
@@ -306,23 +403,27 @@ public class App {
 	public static void createConnAndAddToTable(String updateStatement) {
 		createConnAndUpdateTable(updateStatement);
 	}
-	
-	public static void addToNodeTable(int nodeID, String key, String value, int docID){
-		String statement = "INSERT INTO Node_Table VALUES (" + nodeID + ", " + key + ", " + value + ", " + docID + ")";
+
+	public static void addToNodeTable(int nodeID, String key, String value,
+			int docID) {
+		String statement = "INSERT INTO Node_Table VALUES (" + nodeID + ", "
+				+ key + ", " + value + ", " + docID + ")";
 		System.out.println(statement);
-//		createConnAndAddToTable(statement);
+		// createConnAndAddToTable(statement);
 	}
-	
-	public static void addToLinkTable(int parentNode, int childNode){
-		String statement = "INSERT INTO Link_Table VALUES (" + parentNode + ", " + childNode + ")";
+
+	public static void addToLinkTable(int parentNode, int childNode) {
+		String statement = "INSERT INTO Link_Table VALUES (" + parentNode
+				+ ", " + childNode + ")";
 		System.out.println(statement);
-//		createConnAndAddToTable(statement);
+		// createConnAndAddToTable(statement);
 	}
-	
-	public static void addToInvertedIndex(String word, int nodeID){
-		String statement = "INSERT INTO Inverted_Index VALUES (" + word + ", " + nodeID + ")";
+
+	public static void addToInvertedIndex(String word, int nodeID) {
+		String statement = "INSERT INTO Inverted_Index VALUES (" + word + ", "
+				+ nodeID + ")";
 		System.out.println(statement);
-//		createConnAndAddToTable(statement);
+		// createConnAndAddToTable(statement);
 	}
 
 }
