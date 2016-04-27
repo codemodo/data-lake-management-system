@@ -43,10 +43,8 @@ import java.util.Map;
  *
  */
 public class App {
-	
-	static DatabaseConnector dbc = new DatabaseConnector();
 
-	
+	static DatabaseConnector dbc = new DatabaseConnector();
 
 	public static void main(String[] args) {
 		// File input = new File(args[0]);
@@ -55,19 +53,19 @@ public class App {
 		// File input = new File(
 		// "/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
 		File input = new File(
-				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.csv");
+				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
 
-		dbc.createConnection();
-		dbc.deleteTable("edge_table");
-		dbc.deleteTable("node_table");
-		
-		dbc.createNodeTable();
-		dbc.createEdgeTable();
-		
+		// dbc.createConnection();
+		// dbc.deleteTable("edge_table");
+		// dbc.deleteTable("node_table");
+		//
+		// dbc.createNodeTable();
+		// dbc.createEdgeTable();
+
 		parseFile(input);
-		dbc.printTable("node_table");
-		dbc.printTable("edge_table");
-		dbc.closeConnection();
+		// dbc.printTable("node_table");
+		// dbc.printTable("edge_table");
+		// dbc.closeConnection();
 	}
 
 	public static boolean parseWithTika(File file) {
@@ -91,15 +89,15 @@ public class App {
 
 	public static boolean parseFile(File file) {
 
-		// if (!parseWithJackson(file)) {
-		// if (!parseWithJaxp(file)) {
-		if (!parseWithCommonsCSV(file)) {
-			if (!parseWithTika(file)) {
-				return false;
+		if (!parseWithJackson(file)) {
+			// if (!parseWithJaxp(file)) {
+			if (!parseWithCommonsCSV(file)) {
+				if (!parseWithTika(file)) {
+					return false;
+				}
 			}
+			// }
 		}
-		// }
-		// }
 		return true;
 	}
 
@@ -114,7 +112,7 @@ public class App {
 			for (CSVRecord record : parser) {
 				tupleNumber++;
 				int tupleID = getTupleID(tupleNumber, docID);
-				dbc.addToEdgeTable(docID, tupleID,docID);
+				dbc.addToEdgeTable(docID, tupleID, docID);
 				dbc.addToNodeTable(tupleID, "", "", docID);
 
 				for (String key : headers.keySet()) {
@@ -216,6 +214,7 @@ public class App {
 			// parseJsonTree(rootNode);
 			return true;
 		} catch (JsonProcessingException e) {
+			e.printStackTrace();
 			return false;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -225,12 +224,27 @@ public class App {
 	}
 
 	public static void parseJsonTree2(JsonNode node) {
+		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = node.fields();
+		while (fieldsIterator.hasNext()) {
+
+			Map.Entry<String, JsonNode> field = fieldsIterator.next();
+			System.out.println("Key: " + field.getKey() + "\tValue:"
+					+ field.getValue());
+
+		}
+		
 		Iterator<JsonNode> childNodes = node.elements();
 		while (childNodes.hasNext()) {
 			JsonNode child = childNodes.next();
-			System.out.println(child.textValue());
 			parseJsonTree2(child);
 		}
+		
+		// Iterator<JsonNode> childNodes = node.elements();
+		// while (childNodes.hasNext()) {
+		// JsonNode child = childNodes.next();
+		// System.out.println(child.textValue());
+		// parseJsonTree2(child);
+		// }
 	}
 
 	public static void parseJsonTree(JsonNode node) {
@@ -274,7 +288,5 @@ public class App {
 	public void storeXmlNode(Node node) {
 
 	}
-	
-	
 
 }
