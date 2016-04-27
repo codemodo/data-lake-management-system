@@ -2,12 +2,16 @@ package DBProject.Extractor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.xml.sax.SAXException;
@@ -31,6 +35,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Hello world!
@@ -41,8 +46,9 @@ public class App {
 		// File input = new File(args[0]);
 //		File input = new File(
 //				"/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
-		File input = new File(
-				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
+//		File input = new File(
+//				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
+		File input = new File("/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016.csv");
 		// createConnAndCreateTable("");
 		// parseWithJaxp(input);
 		parseFile(input);
@@ -71,21 +77,61 @@ public class App {
 
 	public static boolean parseFile(File file) {
 
-		if (!parseWithJackson(file)) {
-			if (!parseWithJaxp(file)) {
+//		if (!parseWithJackson(file)) {
+//			if (!parseWithJaxp(file)) {
 				if (!parseWithCommonsCSV(file)) {
 					if (!parseWithTika(file)) {
 						return false;
 					}
 				}
-			}
-		}
+//			}
+//		}
 		return true;
 	}
 
 	private static boolean parseWithCommonsCSV(File file) {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			CSVParser parser = new CSVParser(new FileReader(file), CSVFormat.DEFAULT.withHeader());
+			Map<String,Integer> headers = parser.getHeaderMap();
+			int docID = getDocID(file);
+			addToNodeTable(docID, "", "", docID);
+			int tupleNumber = 0;
+			for (CSVRecord record : parser){
+				tupleNumber++;
+				int tupleID = getTupleID(tupleNumber, docID);
+				addToLinkTable(docID, tupleID);
+
+				for (String key : headers.keySet()){
+					String value = record.get(key);
+					int leafID = getNodeID(key, value, docID, tupleID);
+					addToNodeTable(leafID, key, value, docID);
+					addToLinkTable(tupleID, leafID);
+				}
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
+	}
+	
+	static int getDocID(File file){
+		//TODO
+		return file.hashCode();
+	}
+	
+	static int getTupleID(int tupleNumber, int docID){
+		//TODO
+		return (Integer.toString(tupleNumber) + docID).hashCode();
+	}
+	
+	static int getNodeID(String key, String value, int docID, int parentNodeID){
+		//TODO
+		return (key + value + docID + parentNodeID).hashCode();
 	}
 
 	static boolean parseWithJaxp(File file) {
@@ -103,6 +149,7 @@ public class App {
 			
 			return true;
 		} catch (Exception e) {
+			e.printStackTrace();
 			return false;
 		}
 
@@ -115,9 +162,8 @@ public class App {
 		if (node.hasChildNodes()){
 			children = node.getChildNodes();
 		}
-		Element nodeAsElem = (Element) node;
-		System.out.println("nodename: " + ((Element) node).getNodeName());
-		
+
+		System.out.println("nodename: " + ((Element) node).getNodeName());	
 
 		if (children != null){
 			for(int i = 0; i < children.getLength(); i++){
@@ -261,19 +307,22 @@ public class App {
 		createConnAndUpdateTable(updateStatement);
 	}
 	
-	public static void addToNodeTable(int nodeID, String key, String value){
-		String statement = "INSERT INTO Node_Table VALUES (" + nodeID + ", " + key + ", " + value + ")";
-		createConnAndAddToTable(statement);
+	public static void addToNodeTable(int nodeID, String key, String value, int docID){
+		String statement = "INSERT INTO Node_Table VALUES (" + nodeID + ", " + key + ", " + value + ", " + docID + ")";
+		System.out.println(statement);
+//		createConnAndAddToTable(statement);
 	}
 	
 	public static void addToLinkTable(int parentNode, int childNode){
 		String statement = "INSERT INTO Link_Table VALUES (" + parentNode + ", " + childNode + ")";
-		createConnAndAddToTable(statement);
+		System.out.println(statement);
+//		createConnAndAddToTable(statement);
 	}
 	
 	public static void addToInvertedIndex(String word, int nodeID){
 		String statement = "INSERT INTO Inverted_Index VALUES (" + word + ", " + nodeID + ")";
-		createConnAndAddToTable(statement);
+		System.out.println(statement);
+//		createConnAndAddToTable(statement);
 	}
 
 }
