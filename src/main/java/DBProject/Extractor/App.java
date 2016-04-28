@@ -69,12 +69,13 @@ public class App {
 	}
 
 	public static boolean parseFile(File file) {
-		if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
+		//TODO just expecting exceptions won't work because sometimes they do return something useful
+//		if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
 			if (!JaxpXMLParser.parseWithJaxp(file)) {
 				if (!JacksonJSONParser.parseWithJackson(file)) {
 					return TikaParser.parseWithTika(file);
 				}
-			}
+//			}
 		}
 
 		return true;
