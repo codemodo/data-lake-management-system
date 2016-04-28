@@ -50,22 +50,24 @@ public class App {
 		// File input = new File(args[0]);
 		// File input = new File(
 		// "/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
+//		File input = new File(
+//				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.xml");
 		File input = new File(
-				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.xml");
-		// File input = new File(
-		// "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
+				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
+//		 File input = new File(
+//		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
 
-		// dbc.createConnection();
-		// dbc.deleteTable("edge_table");
-		// dbc.deleteTable("node_table");
-		//
-		// dbc.createNodeTable();
-		// dbc.createEdgeTable();
+		 dbc.createConnection();
+		 dbc.deleteTable("edge_table");
+		 dbc.deleteTable("node_table");
+		
+		 dbc.createNodeTable();
+		 dbc.createEdgeTable();
 
 		parseFile(input);
-		// dbc.printTable("node_table");
-		// dbc.printTable("edge_table");
-		// dbc.closeConnection();
+		 dbc.printTable("node_table");
+		 dbc.printTable("edge_table");
+		 dbc.closeConnection();
 	}
 
 	public static boolean parseFile(File file) {

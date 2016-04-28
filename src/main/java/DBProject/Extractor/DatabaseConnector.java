@@ -116,7 +116,7 @@ public class DatabaseConnector {
 			else {
 				id = 0;
 			}
-			System.out.println("id is " + id);
+//			System.out.println("id is " + id);
 		
 		} catch (SQLException ex) {
     	    // handle any errors
@@ -164,6 +164,12 @@ public class DatabaseConnector {
     	    System.out.println("VendorError: " + ex.getErrorCode());
     	} 
 		
+	}
+	
+	public static void addToNodeTable(TreeNode node){
+		String key = node.key == null ? "" : node.key;
+		String value = node.value == null ? "" : node.value;
+		addToNodeTable(node.nodeID, key, value, node.docID);
 	}
 
 	public static void addToNodeTable(int nodeID, String key, String value,

@@ -49,6 +49,8 @@ public class JacksonJSONParser extends DataParser{
 	}
 
 	public static void parseJsonTree2(JsonNode node) {
+		System.out.println("node type: " + node.getNodeType());
+
 		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = node.fields();
 		while (fieldsIterator.hasNext()) {
 
