@@ -50,10 +50,10 @@ public class App {
 		// File input = new File(args[0]);
 		// File input = new File(
 		// "/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
-		// File input = new File(
-		// "/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
-		File input = new File(
-				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
+		 File input = new File(
+		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.xml");
+//		File input = new File(
+//				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
 
 		// dbc.createConnection();
 		// dbc.deleteTable("edge_table");
@@ -89,8 +89,8 @@ public class App {
 
 	public static boolean parseFile(File file) {
 
-		if (!parseWithJackson(file)) {
-			// if (!parseWithJaxp(file)) {
+//		if (!parseWithJackson(file)) {
+			 if (!parseWithJaxp(file)) {
 			if (!parseWithCommonsCSV(file)) {
 				if (!parseWithTika(file)) {
 					return false;
@@ -170,14 +170,17 @@ public class App {
 	}
 
 	static void parseWithJaxp(Node node) {
-		System.out.println("value: " + node.getNodeValue());
-		System.out.println("type: " + node.getNodeType());
-		NodeList children = null;
-		if (node.hasChildNodes()) {
-			children = node.getChildNodes();
-		}
+		if (node.getNodeType() == Node.ELEMENT_NODE) {
+	        Element elem = (Element) node;
+	        System.out.println("TagName: " + elem.getTagName());
+	    }
+		
+		String value = node.getNodeValue() == null ? "" : node.getNodeValue().trim();
 
-		System.out.println("nodename: " + ((Element) node).getNodeName());
+		System.out.println("value: " + value);
+		System.out.println("type: " + node.getNodeType() + "\n");
+		
+		NodeList children = node.getChildNodes();
 
 		if (children != null) {
 			for (int i = 0; i < children.getLength(); i++) {
