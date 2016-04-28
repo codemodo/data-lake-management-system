@@ -50,10 +50,10 @@ public class App {
 		// File input = new File(args[0]);
 		// File input = new File(
 		// "/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
-		 File input = new File(
-		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.xml");
-//		File input = new File(
-//				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
+		File input = new File(
+				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.xml");
+		// File input = new File(
+		// "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
 
 		// dbc.createConnection();
 		// dbc.deleteTable("edge_table");
@@ -68,228 +68,16 @@ public class App {
 		// dbc.closeConnection();
 	}
 
-	public static boolean parseWithTika(File file) {
-		// Instantiating Tika facade class
-		Tika tika = new Tika();
-		try {
-			String fileContent;
-			try {
-				fileContent = tika.parseToString(file);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-
-		} catch (TikaException e) {
-			return false;
-		}
-		return true;
-	}
-
 	public static boolean parseFile(File file) {
-
-//		if (!parseWithJackson(file)) {
-			 if (!parseWithJaxp(file)) {
-			if (!parseWithCommonsCSV(file)) {
-				if (!parseWithTika(file)) {
-					return false;
+		if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
+			if (!JaxpXMLParser.parseWithJaxp(file)) {
+				if (!JacksonJSONParser.parseWithJackson(file)) {
+					return TikaParser.parseWithTika(file);
 				}
 			}
-			// }
-		}
-		return true;
-	}
-
-	private static boolean parseWithCommonsCSV(File file) {
-		try {
-			CSVParser parser = new CSVParser(new FileReader(file),
-					CSVFormat.DEFAULT.withHeader());
-			Map<String, Integer> headers = parser.getHeaderMap();
-			int docID = getDocID(file);
-			dbc.addToNodeTable(docID, "", "", docID);
-			int tupleNumber = 0;
-			for (CSVRecord record : parser) {
-				tupleNumber++;
-				int tupleID = getTupleID(tupleNumber, docID);
-				dbc.addToEdgeTable(docID, tupleID, docID);
-				dbc.addToNodeTable(tupleID, "", "", docID);
-
-				for (String key : headers.keySet()) {
-					String value = record.get(key);
-					int leafID = getNodeID(key, value, docID, tupleID);
-					dbc.addToNodeTable(leafID, key, value, docID);
-					dbc.addToEdgeTable(tupleID, leafID, docID);
-				}
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
 		}
 
 		return true;
-	}
-
-	static int getDocID(File file) {
-		// TODO
-		return file.hashCode();
-	}
-
-	static int getTupleID(int tupleNumber, int docID) {
-		// TODO
-		return (Integer.toString(tupleNumber) + docID).hashCode();
-	}
-
-	static int getNodeID(String key, String value, int docID, int parentNodeID) {
-		// TODO
-		return (key + value + docID + parentNodeID).hashCode();
-	}
-
-	static boolean parseWithJaxp(File file) {
-		// TODO Auto-generated method stub
-
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		// dbf.setValidating(true);
-		dbf.setNamespaceAware(true);
-
-		try {
-			DocumentBuilder builder = dbf.newDocumentBuilder();
-			Document document = builder.parse(file);
-			Node root = document.getDocumentElement();
-			parseWithJaxp(root);
-
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-
-	}
-
-	static void parseWithJaxp(Node node) {
-		if (node.getNodeType() == Node.ELEMENT_NODE) {
-	        Element elem = (Element) node;
-	        System.out.println("TagName: " + elem.getTagName());
-	    }
-		
-		String value = node.getNodeValue() == null ? "" : node.getNodeValue().trim();
-
-		System.out.println("value: " + value);
-		System.out.println("type: " + node.getNodeType() + "\n");
-		
-		NodeList children = node.getChildNodes();
-
-		if (children != null) {
-			for (int i = 0; i < children.getLength(); i++) {
-				parseWithJaxp(children.item(i));
-			}
-		}
-	}
-
-	private static boolean parseWithJackson(File file) {
-		// TODO Auto-generated method stub
-		ObjectMapper m = new ObjectMapper();
-		// JsonParserFactor jpf = Json.createParserFactory();
-		JsonNode rootNode;
-		try {
-			rootNode = m.readTree(file);
-			parseJsonTree2(rootNode);
-			// // lets see what type the node is
-			// System.out.println(rootNode.getNodeType()); // prints OBJECT
-			// // is it a container
-			// System.out.println(rootNode.isContainerNode()); // prints true
-			// System.out.println(rootNode.textValue());
-			// Iterator<String> fieldNames = rootNode.fieldNames();
-			// Iterator<JsonNode> childNodes = rootNode.elements();
-			// while (fieldNames.hasNext()){
-			// String fieldName = fieldNames.next();
-			// System.out.println(fieldName);
-			// }
-			// while(childNodes.hasNext()){
-			// JsonNode child = childNodes.next();
-			// System.out.println(child.textValue());
-			// }
-			//
-			//
-			// parseJsonTree(rootNode);
-			return true;
-		} catch (JsonProcessingException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	public static void parseJsonTree2(JsonNode node) {
-		Iterator<Map.Entry<String, JsonNode>> fieldsIterator = node.fields();
-		while (fieldsIterator.hasNext()) {
-
-			Map.Entry<String, JsonNode> field = fieldsIterator.next();
-			System.out.println("Key: " + field.getKey() + "\tValue:"
-					+ field.getValue());
-
-		}
-		
-		Iterator<JsonNode> childNodes = node.elements();
-		while (childNodes.hasNext()) {
-			JsonNode child = childNodes.next();
-			parseJsonTree2(child);
-		}
-		
-		// Iterator<JsonNode> childNodes = node.elements();
-		// while (childNodes.hasNext()) {
-		// JsonNode child = childNodes.next();
-		// System.out.println(child.textValue());
-		// parseJsonTree2(child);
-		// }
-	}
-
-	public static void parseJsonTree(JsonNode node) {
-		if (node == null) {
-			return;
-		} else {
-			storeJsonNode(node);
-			for (int i = 0; i < node.size(); i++) {
-				storeJsonLink(node, node.get(i));
-				parseJsonTree(node.get(i));
-			}
-		}
-	}
-
-	public static void storeJsonNode(JsonNode node) {
-		// TODO store key and value
-	}
-
-	public static void storeJsonLink(JsonNode parent, JsonNode child) {
-		// TODO store key and value
-	}
-
-	public void parseXmlTree(Node node) {
-		if (node == null) {
-			return;
-		} else {
-			storeXmlNode(node);
-			NodeList children = node.getChildNodes();
-			for (int i = 0; i < children.getLength(); i++) {
-				storeXmlLink(node, children.item(i));
-				parseXmlTree(children.item(i));
-			}
-		}
-	}
-
-	private void storeXmlLink(Node node, Node item) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void storeXmlNode(Node node) {
-
 	}
 
 }
