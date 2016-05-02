@@ -58,7 +58,7 @@ public class JaxpXMLParser extends DataParser {
 //	        		System.out.println("attr key: " + a.getName());
 //	        		System.out.println("attr value: " + a.getValue());
 	        		int childID = getNodeID();
-	        		dbc.addToEdgeTable(nodeID, childID, docID);
+	        		dbc.addToEdgeTable(nodeID, childID, 'D');
 	        		dbc.addToNodeTable(childID, a.getName(), a.getValue(), docID);
 //	        		System.out.println("Adding node with key " + a.getName() + " and value " + a.getValue());
 	        	}
@@ -70,7 +70,7 @@ public class JaxpXMLParser extends DataParser {
 		
 		dbc.addToNodeTable(nodeID, key, value, docID);
 //		System.out.println("Adding node with key " + key + " and value " + value);
-		dbc.addToEdgeTable(parentNodeID, nodeID, docID);
+		dbc.addToEdgeTable(parentNodeID, nodeID, 'D');
 		
 		NodeList children = node.getChildNodes();
 
