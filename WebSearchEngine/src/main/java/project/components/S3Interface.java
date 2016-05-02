@@ -56,7 +56,7 @@ public class S3Interface {
 		//upload to s3
 		InputStream inputStream = new FileInputStream(file.getPath());
 		PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, file.getName(), inputStream, metadata);
-		putObjectRequest.setCannedAcl(CannedAccessControlList.Private);
+		putObjectRequest.setCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
 		PutObjectResult putObjectResult = amazonS3Client.putObject(putObjectRequest);
 		IOUtils.closeQuietly(inputStream);
 		//delete file
@@ -100,28 +100,17 @@ public class S3Interface {
 		}
 		return putObjectResults;
 	}
-	
 
-
-	public ResponseEntity<byte[]> download(String key) throws IOException {
-		GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, key);
-		S3Object s3Object = amazonS3Client.getObject(getObjectRequest);
-		S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
-		byte[] bytes = IOUtils.toByteArray(objectInputStream);
-		String fileName = URLEncoder.encode(key, "UTF-8").replaceAll("\\+", "%20");
-		HttpHeaders httpHeaders = new HttpHeaders();
-		httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-		httpHeaders.setContentLength(bytes.length);
-		httpHeaders.setContentDispositionFormData("attachment", fileName);
-		return new ResponseEntity<byte[]>(bytes, httpHeaders, HttpStatus.OK);
-	}
-
-	public List<S3ObjectSummary> list() {
-		ObjectListing objectListing = amazonS3Client.listObjects(new ListObjectsRequest().withBucketName(bucket));
-
-		List<S3ObjectSummary> s3ObjectSummaries = objectListing.getObjectSummaries();
-
-		return s3ObjectSummaries;
+	public byte[] getFileStream(String docName) throws IOException {
+		try {
+			GetObjectRequest getObjectRequest = new GetObjectRequest(bucket, docName);
+			S3Object s3Object = amazonS3Client.getObject(getObjectRequest);
+			S3ObjectInputStream objectInputStream = s3Object.getObjectContent();
+			byte[] bytes = IOUtils.toByteArray(objectInputStream);
+			return bytes;
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	/**
