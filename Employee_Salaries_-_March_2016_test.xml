@@ -1,0 +1,42 @@
+<EmployeeSalaries>
+		<Employee name="Rosemary">
+			<LastName languagecode="en">Chiliberti</LastName>
+			<FirstName>Rosemary</FirstName>
+			<Title>ADM TECHNICIAN III</Title>
+			<Department>COMMON PLEAS COURT</Department>
+			<AnnualSalary>$50,543.00</AnnualSalary>
+			<YTDOvertimeGross>$0.00</YTDOvertimeGross>
+		</Employee>
+		<Employee>
+			<LastName>SMITH</LastName>
+			<FirstName>KARI</FirstName>
+			<Title>SENIOR CREW CHIEF</Title>
+			<Department>MANAGING DIRECTORS OFFICE</Department>
+			<AnnualSalary>$34,842.00</AnnualSalary>
+			<YTDOvertimeGross>$0.00</YTDOvertimeGross>
+		</Employee>
+		<Employee>
+			<LastName>BRUMSKILL</LastName>
+			<FirstName>SANDRA</FirstName>
+			<Title>SCHOOL CROSSING GUARD</Title>
+			<Department>POLICE DEPARTMENT</Department>
+			<AnnualSalary>$0.00</AnnualSalary>
+			<YTDOvertimeGross>$0.00</YTDOvertimeGross>
+		</Employee>
+		<Employee>
+			<LastName>ALEXANDER</LastName>
+			<FirstName>KHADEJAH</FirstName>
+			<Title>CLERK TEMPORARY-SUMMER-$7.00/HR.</Title>
+			<Department>COMMON PLEAS COURT</Department>
+			<AnnualSalary>$50,543.00</AnnualSalary>
+			<YTDOvertimeGross>$0.00</YTDOvertimeGross>
+		</Employee>
+		<Employee>
+			<LastName>HILL</LastName>
+			<FirstName>SEAN</FirstName>
+			<Title>PROBATION OFFICER 2</Title>
+			<Department>COMMON PLEAS COURT</Department>
+			<AnnualSalary>$56,206.00</AnnualSalary>
+			<YTDOvertimeGross>$0.00</YTDOvertimeGross>
+		</Employee>
+	</EmployeeSalaries>
