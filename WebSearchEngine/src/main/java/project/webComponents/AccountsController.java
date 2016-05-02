@@ -3,6 +3,8 @@ package project.webComponents;
 import java.io.BufferedOutputStream;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -12,11 +14,14 @@ import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -112,6 +117,41 @@ public class AccountsController {
 			return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		return new ResponseEntity(HttpStatus.BAD_REQUEST);
+	}
+	
+	@RequestMapping(value="/downloadFile/{id}")
+	public ResponseEntity getDownload(@PathVariable Integer id, HttpSession session) {
+		try {
+			//check permission
+			Document requestedDoc = docJdbc.getDocument(id);
+			byte[] bytes = null;
+			if (requestedDoc.getPermission() == 'A')
+				bytes = s3Manager.getFileStream(requestedDoc.getName());
+			else if(SessionHelperFunctions.isLoggedIn(session)) {
+				String authenticatedUser = (String) session.getAttribute("username");
+				if (requestedDoc.getUsername().equals(authenticatedUser))
+					bytes = s3Manager.getFileStream(requestedDoc.getName());
+				else if (requestedDoc.getPermission() == 'E') {
+					User u = userJdbc.getUser(authenticatedUser);
+					if (u.getPermLevel().equalsIgnoreCase("E"))
+						bytes = s3Manager.getFileStream(requestedDoc.getName());
+				}
+			}
+			
+			//permission failure or error getting file
+			if (bytes == null)
+				return new ResponseEntity(HttpStatus.FORBIDDEN);
+			
+			//return stream response
+			String fileName = URLEncoder.encode(requestedDoc.getName(), "UTF-8").replaceAll("\\+", "%20");
+			HttpHeaders httpHeaders = new HttpHeaders();
+			httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+			httpHeaders.setContentLength(bytes.length);
+			httpHeaders.setContentDispositionFormData("attachment", fileName);
+			return new ResponseEntity<byte[]>(bytes, httpHeaders, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity(HttpStatus.BAD_REQUEST);
+		}
 	}
 
 }
