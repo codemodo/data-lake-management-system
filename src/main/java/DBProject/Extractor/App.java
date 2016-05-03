@@ -57,30 +57,40 @@ public class App {
 //		 File input = new File(
 //		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
 
-		 dbc.createConnection();
-		 dbc.deleteTable("edge_table");
-		 dbc.deleteTable("node_table");
+		dbc.createConnection();
+		dbc.deleteTable("ii_table");
+		dbc.deleteTable("edge_table");
+		dbc.deleteTable("node_table");
+		dbc.deleteTable("word_table");
+		dbc.deleteTable("doc_table");
 		
-		 dbc.createNodeTable();
-		 dbc.createEdgeTable();
+		dbc.createDocTable();
+		dbc.createWordTable();
+		dbc.createNodeTable();
+		dbc.createEdgeTable();
+		dbc.createIITable();
+		
+		parseFile(input, dbc);
 
-		parseFile(input);
-		 dbc.printTable("node_table");
-		 dbc.printTable("edge_table");
-		 dbc.closeConnection();
+		dbc.printTable("node_table");
+		dbc.printTable("edge_table");
+		dbc.printTable("word_table");
+		dbc.printTable("ii_table");
+		dbc.printTable("doc_table");
+		dbc.closeConnection();
 	}
 
-	public static boolean parseFile(File file) {
-		//TODO just expecting exceptions won't work because sometimes they do return something useful
-//		if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
-			if (!JaxpXMLParser.parseWithJaxp(file)) {
-				if (!JacksonJSONParser.parseWithJackson(file)) {
-					return TikaParser.parseWithTika(file);
-				}
-//			}
-		}
+	public static boolean parseFile(File file, DatabaseConnector dbc) {
+		//if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
+			//if (!JaxpXMLParser.parseWithJaxp(file)) {
+				//if (!
+						JacksonJSONParser.parseWithJackson(file, dbc);
+						//) {
+					//return TikaParser.parseWithTika(file);
+				//}
+			//}
+		//}
 
 		return true;
 	}
-
 }

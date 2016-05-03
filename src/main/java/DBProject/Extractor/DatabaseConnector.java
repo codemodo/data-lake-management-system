@@ -123,7 +123,7 @@ public class DatabaseConnector {
 	public void addToNodeTable(TreeNode n) {
 		try {
 			String sql = "INSERT INTO node_table " + "VALUES (" + n.nodeID
-					+ ", '" + n.key + "', '" + n.value + "', " + n.docID + ")";
+					+ ", '" + n.k + "', '" + n.v + "', " + n.docID + ")";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ps.executeUpdate(sql);

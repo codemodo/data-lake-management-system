@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.csv.CSVFormat;
@@ -11,26 +12,31 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 public class CommonsCSVParser extends DataParser {
-	
+	static int nextNodeID;
+
 	public static boolean parseWithCommonsCSV(File file) {
 		try {
 			CSVParser parser = new CSVParser(new FileReader(file),
 					CSVFormat.DEFAULT.withHeader());
 			Map<String, Integer> headers = parser.getHeaderMap();
 			int docID = getDocID(file);
-			dbc.addToNodeTable(docID, "", "", docID);
-			int tupleNumber = 0;
+			nextNodeID = dbc.getMaxNodeId() + 1;
+			dbc.addToNodeTable(nextNodeID, "", "", docID);
+			int rootID = nextNodeID;
+
 			for (CSVRecord record : parser) {
-				tupleNumber++;
-				int tupleID = getTupleID(tupleNumber, docID);
-				dbc.addToEdgeTable(docID, tupleID, docID);
-				dbc.addToNodeTable(tupleID, "", "", docID);
+				nextNodeID++;
+				dbc.addToEdgeTable(rootID, nextNodeID);
+				dbc.addToNodeTable(nextNodeID, "", "", docID);
+				int tupleID = nextNodeID;
 
 				for (String key : headers.keySet()) {
+					nextNodeID++;
 					String value = record.get(key);
-					int leafID = getNodeID(key, value, docID, tupleID);
-					dbc.addToNodeTable(leafID, key, value, docID);
-					dbc.addToEdgeTable(tupleID, leafID, docID);
+					dbc.addToNodeTable(nextNodeID, key, value, docID);
+					dbc.addToEdgeTable(tupleID, nextNodeID);
+					addToWordAndInvertedIndexTables(key, nextNodeID);
+					addToWordAndInvertedIndexTables(value, nextNodeID);
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -43,7 +49,18 @@ public class CommonsCSVParser extends DataParser {
 
 		return true;
 	}
-	
-	
+
+	static void addToWordAndInvertedIndexTables(String word, int nodeID) {
+		for (String s : word.split("\\s+")) {
+			if (!s.equals("")) {
+				int wordID = dbc.getWordId(s);
+				if (wordID == -1) {
+					wordID = dbc.getMaxWordId() + 1;
+					dbc.addToWordTable(wordID, s);
+				}
+				dbc.addToIITable(wordID, nodeID);
+			}
+		}
+	}
 
 }
