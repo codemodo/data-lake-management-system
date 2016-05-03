@@ -160,7 +160,9 @@ public class DatabaseConnector {
 		try {
 			String sql = "INSERT INTO ii_table VALUES (" + wordID + ", "
 					+ nodeID + ")";
-			stmt.executeUpdate(sql);
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ps.executeUpdate(sql);
+
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error in adding to inverted index table.");
@@ -195,14 +197,17 @@ public class DatabaseConnector {
 		try {
 			String sql = "SELECT * FROM edge_table WHERE node_1=" + parentNode
 					+ " AND node_2=" + childNode;
-			ResultSet rs = stmt.executeQuery(sql);
+			PreparedStatement ps = conn.prepareStatement(sql);
+
+			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				System.err
 						.println("This edge pair already exists in database.");
 			} else {
 				sql = "INSERT INTO edge_table " + "VALUES (" + parentNode
 						+ ", " + childNode + ", '" + type + "')";
-				stmt.executeUpdate(sql);
+				ps = conn.prepareStatement(sql);
+				ps.executeUpdate(sql);
 			}
 
 		} catch (SQLException ex) {
@@ -227,7 +232,8 @@ public class DatabaseConnector {
 		try {
 			String sql = "SELECT word_id FROM word_table WHERE word='" + word
 					+ "'";
-			ResultSet w = stmt.executeQuery(sql);
+			PreparedStatement ps = conn.prepareStatement(sql);
+			ResultSet w = ps.executeQuery();
 			if (w.next()) {
 				id = Integer.parseInt(w.getString("word_id"));
 			}

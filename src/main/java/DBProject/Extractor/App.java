@@ -52,10 +52,11 @@ public class App {
 		// "/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
 //		File input = new File(
 //				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.xml");
-		File input = new File(
-				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
+//		File input = new File(
+//				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
 //		 File input = new File(
 //		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
+		File input = new File("Employee_Salaries_-_March_2016_truncated.csv");
 
 		dbc.createConnection();
 		dbc.deleteTable("ii_table");
@@ -72,24 +73,24 @@ public class App {
 		
 		parseFile(input, dbc);
 
-		dbc.printTable("node_table");
-		dbc.printTable("edge_table");
-		dbc.printTable("word_table");
-		dbc.printTable("ii_table");
-		dbc.printTable("doc_table");
+//		dbc.printTable("node_table");
+//		dbc.printTable("edge_table");
+//		dbc.printTable("word_table");
+//		dbc.printTable("ii_table");
+//		dbc.printTable("doc_table");
 		dbc.closeConnection();
 	}
 
 	public static boolean parseFile(File file, DatabaseConnector dbc) {
-		//if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
+		if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
 			//if (!JaxpXMLParser.parseWithJaxp(file)) {
 				//if (!
-						JacksonJSONParser.parseWithJackson(file, dbc);
+//						JacksonJSONParser.parseWithJackson(file, dbc);
 						//) {
 					//return TikaParser.parseWithTika(file);
 				//}
 			//}
-		//}
+		}
 
 		return true;
 	}
