@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -25,8 +28,10 @@ public class CommonsCSVParser extends DataParser {
 			nextNodeID = dbc.getMaxNodeId() + 1;
 			dbc.addToNodeTable(nextNodeID, "", "", docID);
 			int rootID = nextNodeID;
+			int rowsAdded = 0;
 
 			for (CSVRecord record : parser) {
+				
 				nextNodeID++;
 				dbc.addToEdgeTable(rootID, nextNodeID);
 				dbc.addToNodeTable(nextNodeID, "", "", docID);
@@ -40,6 +45,12 @@ public class CommonsCSVParser extends DataParser {
 					addToWordAndInvertedIndexTables(key, nextNodeID);
 					addToWordAndInvertedIndexTables(value, nextNodeID);
 				}
+				
+				if (rowsAdded % 500 == 0){
+					System.out.println("Added " + rowsAdded + " rows at time " + System.nanoTime());
+				}
+				rowsAdded++;
+				
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -53,25 +64,14 @@ public class CommonsCSVParser extends DataParser {
 	}
 
 	static void addToWordAndInvertedIndexTables(String word, int nodeID) {
-		if (NumberUtils.isNumber(word)) {
-			return;
-		}
 
-		int wordID = dbc.getWordId(word);
-		if (wordID == -1) {
-			wordID = dbc.getMaxWordId() + 1;
-			dbc.addToWordTable(wordID, word);
-		}
-
-		dbc.addToIITable(wordID, nodeID);
 
 		String[] parts = word.split("\\s+");
-		if (parts.length == 1) {
-			return;
-		}
-		for (String s : parts) {
-			if (StringUtils.isAlpha(s)) {
-				wordID = dbc.getWordId(s);
+		Set<String> uniqueWords = new HashSet<String>(Arrays.asList(parts));
+
+		for (String s : uniqueWords) {
+			if (!NumberUtils.isNumber(word)) {
+				int wordID = dbc.getWordId(s);
 				if (wordID == -1) {
 					wordID = dbc.getMaxWordId() + 1;
 					dbc.addToWordTable(wordID, s);

@@ -108,6 +108,9 @@ public class DatabaseConnector {
 			String sql = "INSERT INTO node_table " + "VALUES (" + nodeID
 					+ ", '" + key + "', '" + value + "', " + docID + ")";
 			PreparedStatement ps = conn.prepareStatement(sql);
+			if (value.equalsIgnoreCase("MANAGING DIRECTOR'S OFFICE")){
+				int i =1;
+			}
 
 			ps.executeUpdate(sql);
 
@@ -169,6 +172,7 @@ public class DatabaseConnector {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
+			System.out.println("WordID: " + wordID + " ndoeID: " + nodeID);
 		}
 	}
 
