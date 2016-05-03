@@ -10,6 +10,8 @@ import java.util.Map;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 public class CommonsCSVParser extends DataParser {
 	static int nextNodeID;
@@ -51,9 +53,25 @@ public class CommonsCSVParser extends DataParser {
 	}
 
 	static void addToWordAndInvertedIndexTables(String word, int nodeID) {
-		for (String s : word.split("\\s+")) {
-			if (!s.equals("")) {
-				int wordID = dbc.getWordId(s);
+		if (NumberUtils.isNumber(word)) {
+			return;
+		}
+
+		int wordID = dbc.getWordId(word);
+		if (wordID == -1) {
+			wordID = dbc.getMaxWordId() + 1;
+			dbc.addToWordTable(wordID, word);
+		}
+
+		dbc.addToIITable(wordID, nodeID);
+
+		String[] parts = word.split("\\s+");
+		if (parts.length == 1) {
+			return;
+		}
+		for (String s : parts) {
+			if (StringUtils.isAlpha(s)) {
+				wordID = dbc.getWordId(s);
 				if (wordID == -1) {
 					wordID = dbc.getMaxWordId() + 1;
 					dbc.addToWordTable(wordID, s);
