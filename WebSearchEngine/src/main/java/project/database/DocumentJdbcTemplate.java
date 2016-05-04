@@ -1,5 +1,7 @@
 package project.database;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -79,5 +81,56 @@ public class DocumentJdbcTemplate {
 				");";
 		List<Document> docs = jdbcTemplateObject.query(SQL, new Object[]{charString, searchTerm}, new DocumentMapper());
 		return docs;
+	}
+	
+	public List<Document> getDocsByTermAndUser(String searchTerm, User user) {
+		//get documents based on permission level
+		String SQL = 
+				"select * from Document " +
+				"where permission ";
+		if (user.getPermChar() == 'E')
+			SQL += "in ('A', 'E') ";
+		else
+			SQL += "= 'A' ";
+		SQL += "and id in " +
+				"( " +
+				  "select distinct(doc_id) from node_table " +
+				  "where node_id in " +
+				  "( " +
+				   " select node_id " +
+				    "from ii_table " +
+				   " where word_id = ? " +
+				  ")  " +
+				");";
+		List<Document> permissionDocs = jdbcTemplateObject.query(SQL, new Object[]{searchTerm}, new DocumentMapper());
+
+		//get the user's personal Documents
+		SQL = 
+				"select * from Document " +
+				"where username = ? " +
+				"and id in " +
+				"( " +
+				  "select distinct(doc_id) from node_table " +
+				  "where node_id in " +
+				  "( " +
+				   " select node_id " +
+				    "from ii_table " +
+				   " where word_id = ? " +
+				  ")  " +
+				");";
+		List<Document> userDocs = jdbcTemplateObject.query(SQL, new Object[]{user.getUsername(), searchTerm}, new DocumentMapper());
+		
+		//remove duplicates using doc_id
+		HashMap<Integer, Document> idToDoc = new HashMap<Integer, Document>();
+		for (Document doc : permissionDocs)
+			if (idToDoc.get(doc.getId()) == null)
+				idToDoc.put(doc.getId(), doc);
+		for (Document doc : userDocs)
+			if (idToDoc.get(doc.getId()) == null)
+				idToDoc.put(doc.getId(), doc);
+		List<Document> cleanedList = new ArrayList<Document>();
+		for (Integer key : idToDoc.keySet())
+			cleanedList.add(idToDoc.get(key));
+		return cleanedList;
 	}
 }

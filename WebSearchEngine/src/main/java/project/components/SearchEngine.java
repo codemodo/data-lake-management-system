@@ -16,6 +16,7 @@ import project.database.Edge;
 import project.database.EdgeJdbcTemplate;
 import project.database.Node;
 import project.database.NodeJdbcTemplate;
+import project.database.User;
 import project.database.UserJdbcTemplate;
 
 @Service
@@ -33,14 +34,23 @@ public class SearchEngine {
 	@Qualifier("edgeJdbcBean")
 	EdgeJdbcTemplate edgeJdbc;
 	
-	@Cacheable("testCache")
-	public int doSearch() throws InterruptedException {
-		Thread.sleep(4000);
-		return 1;
+//	@Cacheable("testCache")
+	public List<SingleWordSingleSearch> singleWordSearch(String searchTerm, User currentUser) throws InterruptedException {
+		List<SingleWordSingleSearch> results = getNodesAndPrepareClasses(searchTerm, currentUser);
+		for (SingleWordSingleSearch singleResult : results) {
+			singleResult.getPathFromRoot();
+			singleResult.getNodesJson();
+			singleResult.getEdgesJson();
+		}
+		return results;
 	}
 	
-	public List<SingleWordSingleSearch> getNodesAndPrepareClasses(String word, char permLevel) {
-		List<Document> docs = docJdbc.getDocsByTermAndPerm(word, permLevel);
+	public List<SingleWordSingleSearch> getNodesAndPrepareClasses(String word, User currentUser) {
+		List<Document> docs;
+		if (currentUser == null)
+			docs = docJdbc.getDocsByTermAndPerm(word, 'A');
+		else
+			docs = docJdbc.getDocsByTermAndUser(word, currentUser);
 		List<Node> nodes = nodeJdbc.getNodesByDocList(docs);
 		List<Edge> edges = edgeJdbc.getEdgesByNodeList(nodes);
 		
@@ -73,7 +83,6 @@ public class SearchEngine {
 		}
 		return swssList;
 	}
-
 	
 	//setters used during testing
 	public void setDocJdbc(DocumentJdbcTemplate docJdbc) {
@@ -87,9 +96,6 @@ public class SearchEngine {
 	public void setEdgeJdbc(EdgeJdbcTemplate edgeJdbc) {
 		this.edgeJdbc = edgeJdbc;
 	}
-	
-	
-	
-	
+
 
 }

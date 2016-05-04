@@ -51,10 +51,14 @@ public class AccountsController {
 	@Qualifier("docJdbcBean")
 	DocumentJdbcTemplate docJdbc;
 	
+	@Autowired
+	@Qualifier("sessionHelperFunctionsBean")
+	SessionHelperFunctions shf;
+	
 	@RequestMapping("/")
 	public String home(Model model, HttpSession session) {
-		model.addAttribute("isLoggedIn", SessionHelperFunctions.isLoggedIn(session));
-		if (SessionHelperFunctions.isLoggedIn(session))
+		model.addAttribute("isLoggedIn", shf.isLoggedIn(session));
+		if (shf.isLoggedIn(session))
 			model.addAttribute("documents", docJdbc.getDocsByUser((String) session.getAttribute("username")));
 		return "index";
 	}
@@ -99,7 +103,7 @@ public class AccountsController {
 	
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
 	public String handleFileUpload(@RequestParam("file") MultipartFile[] files, HttpSession session) {
-		if (SessionHelperFunctions.isLoggedIn(session)) {
+		if (shf.isLoggedIn(session)) {
 			s3Manager.upload(files, (String) session.getAttribute("username"));
 		}
 		return "redirect:/";
@@ -108,7 +112,7 @@ public class AccountsController {
 	@RequestMapping(value = "/setDocPermission", method = RequestMethod.POST)
 	public ResponseEntity setDocPermission(@RequestParam("docID") Integer docID, 
 			@RequestParam("permLevel") Character permLevel, HttpSession session) {
-		if (SessionHelperFunctions.isLoggedIn(session)) {
+		if (shf.isLoggedIn(session)) {
 			Document doc = docJdbc.getDocument(docID);
 			if (doc.getUsername().equals(session.getAttribute("username"))) {
 				docJdbc.updatePermission(docID, permLevel);
@@ -127,7 +131,7 @@ public class AccountsController {
 			byte[] bytes = null;
 			if (requestedDoc.getPermission() == 'A')
 				bytes = s3Manager.getFileStream(requestedDoc.getName());
-			else if(SessionHelperFunctions.isLoggedIn(session)) {
+			else if(shf.isLoggedIn(session)) {
 				String authenticatedUser = (String) session.getAttribute("username");
 				if (requestedDoc.getUsername().equals(authenticatedUser))
 					bytes = s3Manager.getFileStream(requestedDoc.getName());

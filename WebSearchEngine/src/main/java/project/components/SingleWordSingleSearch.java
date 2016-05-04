@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import project.database.*;
 
 public class SingleWordSingleSearch {
@@ -15,6 +18,8 @@ public class SingleWordSingleSearch {
 	public String searchTerm;
 	public ArrayList<Node> pathFromRoot;
 	public HashMap<Node, ArrayList<Node>> adjacencyList;
+	public JSONArray nodesJson;
+	public JSONArray edgesJson;
 	
 	public SingleWordSingleSearch() {
 		nodesSet = new HashSet<Node>();
@@ -28,6 +33,31 @@ public class SingleWordSingleSearch {
 		createAdjacencyMatrix();
 		pathFromRoot = bfs(rootNode);
 		return pathFromRoot;
+	}
+	
+	public JSONArray getNodesJson() {
+		JSONArray jArray = new JSONArray();
+		for (Node node : pathFromRoot) {
+			JSONObject nodeJson = new JSONObject();
+			nodeJson.put("id", node.getId());
+			nodeJson.put("label", node.getKey() + ", " + node.getValue());
+			jArray.add(nodeJson);
+		}
+		nodesJson = jArray;
+		return jArray;
+	}
+	
+	public JSONArray getEdgesJson() {
+		JSONArray jArray = new JSONArray();
+		for (int i = 0; i < pathFromRoot.size() - 1; i++) {
+			JSONObject edgeJson = new JSONObject();
+			edgeJson.put("from", pathFromRoot.get(i).getId());
+			edgeJson.put("to", pathFromRoot.get(i + 1).getId());
+			edgeJson.put("arrows", "to");
+			jArray.add(edgeJson);
+		}
+		edgesJson = jArray;
+		return jArray;
 	}
 	
 	public ArrayList<Node> bfs(Node root) {

@@ -13,6 +13,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import project.webComponents.AccountsController;
+import project.webComponents.SessionHelperFunctions;
  
 /**
  * 
@@ -21,6 +22,12 @@ import project.webComponents.AccountsController;
 @EnableWebMvc
 @ComponentScan({"project.webComponents"})
 public class WebConfig extends WebMvcConfigurerAdapter {
+	
+	@Bean(name="sessionHelperFunctionsBean")
+	SessionHelperFunctions getSessionHelperFunctions() {
+		SessionHelperFunctions shf = new SessionHelperFunctions();
+		return shf;
+	}
 	
 	/**
 	 * Adding a resource handler for static files. 

@@ -36,7 +36,7 @@
 			<c:otherwise>
 			  <div class="bar-button-box">
 			  		<form action="/logout" method="post"> 
-						<button class="bar-button" data-toggle="modal" data-target="#signUpModal">
+						<button class="bar-button">
 							 Log Out
 						</button>
 					</form>
@@ -69,41 +69,72 @@
 							<form action="/search" method="get">
 								<input type="text" name="query" placeholder="Search" id="search-entry-box">
 								<br>
-							  	<button type="submit" class="search-button btn btn-default">Search</button
+							  	<button type="submit" class="search-button btn btn-default">Search</button>
 							</form>
 						</div>
 				  	</div>
 				</div>
 				
-				RESULTS HERE
-				<div id="mynetwork"></div>
+				<c:forEach items="${resultsList}" var="result">
+					<a href="/downloadFile/${result.document.getId()}">
+						<div class="panel panel-primary">
+							<div class="panel-heading">${result.document.getName()}</div>
+							<div class="panel-body">
+						   		<div class="graph-display" id="${result.document.getId()}"></div>
+							</div>
+						</div>
+					</a>
+				</c:forEach>
 					
 			</div>
 		</div>
 	</div>
 	
+	<!--Sign Up Modal-->
+	<div class="modal" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModal">
+	  <div class="modal-dialog modal-sm" role="document">
+	    <div class="modal-content">
+	      <div class="modal-body text-center">
+			<form action="/signup" method="post">
+				<input type="text" name="username" placeholder="User Name">
+				<input type="text" name="first" placeholder="First Name">
+				<input type="text" name="last" placeholder="Last Name">
+				<input type="password" name="password" placeholder="Password">
+				<br>
+			  	<input type="submit" value="Sign Up">
+			</form>
+	      </div>
+	  	</div>
+	  </div>
+	</div>
 	
-
+		<!--Login Modal-->
+	<div class="modal" id="logInModal" tabindex="-1" role="dialog" aria-labelledby="logInModal">
+	  <div class="modal-dialog modal-sm" role="document">
+	    <div class="modal-content">
+	      <div class="modal-body text-center">
+			<form action="/authenticate" method="post">
+				<input type="text" name="username" placeholder="User Name">
+				<input type="password" name="password" placeholder="Password">
+				<br>
+			  	<input type="submit" value="Log In">
+			</form>
+	      </div>
+	  	</div>
+	  </div>
+	</div>
+	
+	
+<c:forEach items="${resultsList}" var="result">
 	<script type="text/javascript">
 	    // create an array with nodes
-	    var nodes = new vis.DataSet([
-	        {id: 1, label: 'Node 1'},
-	        {id: 2, label: 'Node 2'},
-	        {id: 3, label: 'Node 3'},
-	        {id: 4, label: 'Node 4'},
-	        {id: 5, label: 'Node 5'}
-	    ]);
+	    var nodes = new vis.DataSet(${result.nodesJson});
 	
 	    // create an array with edges
-	    var edges = new vis.DataSet([
-	        {from: 1, to: 3, arrows:'to'},
-	        {from: 1, to: 2, arrows:'to'},
-	        {from: 2, to: 4, arrows:'to'},
-	        {from: 2, to: 5, arrows:'to'}
-	    ]);
+	    var edges = new vis.DataSet(${result.edgesJson});
 	
 	    // create a network
-	    var container = document.getElementById('mynetwork');
+	    var container = document.getElementById('${result.document.id}');
 	
 	    // provide the data in the vis format
 	    var data = {
@@ -115,6 +146,7 @@
 	    // initialize your network!
 	    var network = new vis.Network(container, data, options);
 	</script>
+</c:forEach>
 		
 	
 </body>
