@@ -38,5 +38,8 @@ public class User {
 	public void setPermLevel(String permLevel) {
 		this.permLevel = permLevel;
 	}
-
+	
+	public char getPermChar(){
+		return permLevel.charAt(0);
+	}
 }

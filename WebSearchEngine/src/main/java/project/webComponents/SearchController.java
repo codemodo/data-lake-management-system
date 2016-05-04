@@ -1,5 +1,7 @@
 package project.webComponents;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import project.components.SearchEngine;
+import project.components.SingleWordSingleSearch;
 
 @Controller
 public class SearchController {
@@ -23,16 +26,27 @@ public class SearchController {
 	@Qualifier("searchEngineBean")
 	SearchEngine searchEngine;
 	
+	@Autowired
+	@Qualifier("sessionHelperFunctionsBean")
+	SessionHelperFunctions shf;
+	
 	@RequestMapping("/search")
-	public String home(@RequestParam(value="query", required=true) String query, Model model, HttpSession session) {
-		model.addAttribute("isLoggedIn", SessionHelperFunctions.isLoggedIn(session));
+	public String home(@RequestParam(value="query", required=true) String query, Model model, HttpSession session) throws InterruptedException {
+		model.addAttribute("isLoggedIn", shf.isLoggedIn(session));
 		try {
-			searchEngine.doSearch();
+			String[] queryWords = query.split(" ");
+			if (queryWords.length == 1) {
+				List<SingleWordSingleSearch> results = 
+						searchEngine.singleWordSearch(query, shf.getCurrentUser(session));
+				model.addAttribute("resultsList", results);
+			} else if (queryWords.length > 1) {
+				//do 2 word search
+			}
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return "results";
 	}
+
 
 }

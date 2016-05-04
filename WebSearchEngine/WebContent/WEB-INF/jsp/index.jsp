@@ -33,7 +33,7 @@
 			<c:otherwise>
 			  <div class="bar-button-box">
 			  		<form action="/logout" method="post"> 
-						<button class="bar-button" data-toggle="modal" data-target="#signUpModal">
+						<button class="bar-button">
 							 Log Out
 						</button>
 					</form>
@@ -119,7 +119,7 @@
 	</div>
 	
 	
-		<!--Login Modal-->
+		<!--SignUp Modal-->
 	<div class="modal" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModal">
 	  <div class="modal-dialog modal-sm" role="document">
 	    <div class="modal-content">

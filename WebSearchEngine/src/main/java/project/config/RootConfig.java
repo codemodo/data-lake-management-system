@@ -27,6 +27,7 @@ import project.database.DocumentJdbcTemplate;
 import project.database.EdgeJdbcTemplate;
 import project.database.NodeJdbcTemplate;
 import project.database.UserJdbcTemplate;
+import project.webComponents.SessionHelperFunctions;
 
 /**
  * 

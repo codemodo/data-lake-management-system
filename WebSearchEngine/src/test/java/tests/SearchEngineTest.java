@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.json.simple.JSONArray;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -19,10 +20,18 @@ import project.database.DocumentJdbcTemplate;
 import project.database.EdgeJdbcTemplate;
 import project.database.Node;
 import project.database.NodeJdbcTemplate;
+import project.database.User;
+import project.database.UserJdbcTemplate;
 
 public class SearchEngineTest {
 	
 	SearchEngine engine;
+	UserJdbcTemplate userTemp;
+	public UserJdbcTemplate getUserJdbcTemplate() {
+		UserJdbcTemplate userTemp = new UserJdbcTemplate();
+		userTemp.setDataSource(getDataSource());
+		return userTemp;
+	}
 	
 	public DocumentJdbcTemplate getDocJdbcTemplate() {
 		DocumentJdbcTemplate docTemp = new DocumentJdbcTemplate();
@@ -58,29 +67,58 @@ public class SearchEngineTest {
 		engine.setDocJdbc(getDocJdbcTemplate());
 		engine.setEdgeJdbc(getEdgeJdbcTemplate());
 		engine.setNodeJdbc(getNodeJdbcTemplate());
+		userTemp = getUserJdbcTemplate();
 	}
-//
-//	@Test
-//	public void getNodesAndPrepareClassesTest() {
-//		List<SingleWordSingleSearch> swssList = engine.getNodesAndPrepareClasses("a", 'A');
-//		assertNotNull(swssList);
-//		assertEquals(swssList.size(), 1);
-//		assertEquals(swssList.get(0).getDocument().getId(), 1);
-//		assertEquals(swssList.get(0).edgesSet.size(), 11);
-//		assertEquals(swssList.get(0).nodesSet.size(), 12);
-//	}
-//	
-//	@Test 
-//	public void testIdentifyRootNode() {
-//		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("a", 'A').get(0);
-//		Node rootNode = swss.identifyRootNode();
-//		assertNotNull(rootNode);
-//		assertEquals(rootNode.getId(), 1);
-//	}
+
+	@Test
+	public void getNodesAndPrepareClassesTest() {
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		List<SingleWordSingleSearch> swssList = engine.getNodesAndPrepareClasses("t", user);
+		assertNotNull(swssList);
+		assertEquals(swssList.size(), 1);
+		assertEquals(swssList.get(0).getDocument().getId(), 1);
+		assertEquals(swssList.get(0).edgesSet.size(), 11);
+		assertEquals(swssList.get(0).nodesSet.size(), 12);
+	}
+	
+	@Test 
+	public void testIdentifyRootNode() {
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("t", user).get(0);
+		Node rootNode = swss.identifyRootNode();
+		assertNotNull(rootNode);
+		assertEquals(rootNode.getId(), 1);
+	}
+	
+	@Test
+	public void testGetNodesJson() {
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("t", user).get(0);
+		assertEquals(swss.searchTerm, "t");
+		ArrayList<Node> sp = swss.getPathFromRoot();
+		JSONArray jArray = swss.getNodesJson();
+		System.out.println(jArray);
+	}
+	
+	@Test
+	public void testGetEdgesJson() {
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("t", user).get(0);
+		assertEquals(swss.searchTerm, "t");
+		ArrayList<Node> sp = swss.getPathFromRoot();
+		JSONArray jArray = swss.getEdgesJson();
+		System.out.println(jArray);
+	}
 	
 	@Test
 	public void testGetPathFromRoot() {
-		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("a", 'A').get(0);
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("a", user).get(0);
 		assertEquals(swss.searchTerm, "a");
 		ArrayList<Node> sp = swss.getPathFromRoot();
 		for (Node n : sp) {
@@ -123,79 +161,81 @@ public class SearchEngineTest {
 		System.out.println("");
 	}
 	
-//	@Test
-//	public void testCreateAdjacencyMatrix() {
-//		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("a", 'A').get(0);
-//		swss.createAdjacencyMatrix();
-//		assertNotNull(swss.adjacencyList);
-//		Node rootNode = swss.identifyRootNode();
-//		ArrayList<Node> rootNodeList = swss.adjacencyList.get(rootNode);
-//		HashMap<Integer, Node> idToNode = swss.getIdToNodeMap();
-//		HashSet<Node> nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertEquals(nodeSet.size(), 3);
-//		assertTrue(nodeSet.contains(idToNode.get(2)));
-//		assertTrue(nodeSet.contains(idToNode.get(3)));
-//		assertTrue(nodeSet.contains(idToNode.get(4)));
-//		
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(2));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertEquals(nodeSet.size(), 2);
-//		assertTrue(nodeSet.contains(idToNode.get(5)));
-//		assertTrue(nodeSet.contains(idToNode.get(6)));
-//		
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(8));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertEquals(nodeSet.size(), 2);
-//		assertTrue(nodeSet.contains(idToNode.get(9)));
-//		assertTrue(nodeSet.contains(idToNode.get(10)));
-//		
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(5));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertEquals(nodeSet.size(), 1);
-//		assertTrue(nodeSet.contains(idToNode.get(11)));
-//		
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(6));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertEquals(nodeSet.size(), 1);
-//		assertTrue(nodeSet.contains(idToNode.get(12)));
-//		
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(4));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertEquals(nodeSet.size(), 1);
-//		assertTrue(nodeSet.contains(idToNode.get(7)));
-//		
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(7));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertEquals(nodeSet.size(), 1);
-//		assertTrue(nodeSet.contains(idToNode.get(8)));
-//		
-//		//check Leaves
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(11));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertTrue(nodeSet.isEmpty());
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(12));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertTrue(nodeSet.isEmpty());
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(9));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertTrue(nodeSet.isEmpty());
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(10));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertTrue(nodeSet.isEmpty());
-//		rootNodeList = swss.adjacencyList.get(idToNode.get(3));
-//		nodeSet = new HashSet<Node>();
-//		nodeSet.addAll(rootNodeList);
-//		assertTrue(nodeSet.isEmpty());
-//	}
+	@Test
+	public void testCreateAdjacencyMatrix() {
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		SingleWordSingleSearch swss = engine.getNodesAndPrepareClasses("t", user).get(0);
+		swss.createAdjacencyMatrix();
+		assertNotNull(swss.adjacencyList);
+		Node rootNode = swss.identifyRootNode();
+		ArrayList<Node> rootNodeList = swss.adjacencyList.get(rootNode);
+		HashMap<Integer, Node> idToNode = swss.getIdToNodeMap();
+		HashSet<Node> nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertEquals(nodeSet.size(), 3);
+		assertTrue(nodeSet.contains(idToNode.get(2)));
+		assertTrue(nodeSet.contains(idToNode.get(3)));
+		assertTrue(nodeSet.contains(idToNode.get(4)));
+		
+		rootNodeList = swss.adjacencyList.get(idToNode.get(2));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertEquals(nodeSet.size(), 2);
+		assertTrue(nodeSet.contains(idToNode.get(5)));
+		assertTrue(nodeSet.contains(idToNode.get(6)));
+		
+		rootNodeList = swss.adjacencyList.get(idToNode.get(8));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertEquals(nodeSet.size(), 2);
+		assertTrue(nodeSet.contains(idToNode.get(9)));
+		assertTrue(nodeSet.contains(idToNode.get(10)));
+		
+		rootNodeList = swss.adjacencyList.get(idToNode.get(5));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertEquals(nodeSet.size(), 1);
+		assertTrue(nodeSet.contains(idToNode.get(11)));
+		
+		rootNodeList = swss.adjacencyList.get(idToNode.get(6));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertEquals(nodeSet.size(), 1);
+		assertTrue(nodeSet.contains(idToNode.get(12)));
+		
+		rootNodeList = swss.adjacencyList.get(idToNode.get(4));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertEquals(nodeSet.size(), 1);
+		assertTrue(nodeSet.contains(idToNode.get(7)));
+		
+		rootNodeList = swss.adjacencyList.get(idToNode.get(7));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertEquals(nodeSet.size(), 1);
+		assertTrue(nodeSet.contains(idToNode.get(8)));
+		
+		//check Leaves
+		rootNodeList = swss.adjacencyList.get(idToNode.get(11));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertTrue(nodeSet.isEmpty());
+		rootNodeList = swss.adjacencyList.get(idToNode.get(12));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertTrue(nodeSet.isEmpty());
+		rootNodeList = swss.adjacencyList.get(idToNode.get(9));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertTrue(nodeSet.isEmpty());
+		rootNodeList = swss.adjacencyList.get(idToNode.get(10));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertTrue(nodeSet.isEmpty());
+		rootNodeList = swss.adjacencyList.get(idToNode.get(3));
+		nodeSet = new HashSet<Node>();
+		nodeSet.addAll(rootNodeList);
+		assertTrue(nodeSet.isEmpty());
+	}
 }

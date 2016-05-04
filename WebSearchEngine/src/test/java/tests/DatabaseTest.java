@@ -1,5 +1,7 @@
 package tests;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -18,6 +20,14 @@ public class DatabaseTest extends TestCase {
 	DocumentJdbcTemplate docJdbc = getDocJdbcTemplate();
 	NodeJdbcTemplate nodeJdbc = getNodeJdbcTemplate();
 	EdgeJdbcTemplate edgeJdbc = getEdgeJdbcTemplate();
+	UserJdbcTemplate userTemp = getUserJdbcTemplate();
+	
+	public UserJdbcTemplate getUserJdbcTemplate() {
+		UserJdbcTemplate userTemp = new UserJdbcTemplate();
+		userTemp.setDataSource(getDataSource());
+		return userTemp;
+	}
+	
 	
 	public DocumentJdbcTemplate getDocJdbcTemplate() {
 		DocumentJdbcTemplate docTemp = new DocumentJdbcTemplate();
@@ -90,6 +100,26 @@ public class DatabaseTest extends TestCase {
 //		for (Edge edge : edges) {
 //			System.out.println(edge.getNode1ID() + " " + edge.getNode2ID() + " " + edge.getType());
 //		}
+	}
+	
+	@Test
+	public void testGetDocsByTermAndUser() {
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		List<Document> docs = docJdbc.getDocsByTermAndUser("friend", user);
+		assertNotNull(docs);
+		assertEquals(docs.size(), 1);
+		
+		user = userTemp.getUser("rysmit2");
+		assertNotNull(user);
+		docs = docJdbc.getDocsByTermAndUser("friend", user);
+		
+		for (Document doc : docs) {
+			System.out.println(doc.getId() + " " + doc.getName());
+		}
+		assertNotNull(docs);
+		assertEquals(docs.size(), 3);
+		
 	}
 
 }
