@@ -18,3 +18,7 @@ a:hover {
 a:active {
     text-decoration: underline;
 }
+
+.panel-footer {
+	text-align: right;
+}

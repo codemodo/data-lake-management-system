@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import project.components.SearchEngine;
 import project.components.SingleWordSingleSearch;
+import project.components.TwsSinglePathDisplay;
 
 @Controller
 public class SearchController {
@@ -40,12 +41,15 @@ public class SearchController {
 						searchEngine.singleWordSearch(query, shf.getCurrentUser(session));
 				model.addAttribute("resultsList", results);
 			} else if (queryWords.length > 1) {
-				//do 2 word search
+				List<TwsSinglePathDisplay> results = 
+						searchEngine.twoWordSearch(queryWords[0], queryWords[1], shf.getCurrentUser(session));
+				model.addAttribute("resultsList", results);
+				return "resultsTwoWord";
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return "results";
+		return "resultsSingleWord";
 	}
 
 

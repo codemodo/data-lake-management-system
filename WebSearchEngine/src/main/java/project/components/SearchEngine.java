@@ -46,10 +46,9 @@ public class SearchEngine {
 		return results;
 	}
 	
-	public TwoWordSearch twoWordSearch(String word1, String word2, User currentUser) {
+	public List<TwsSinglePathDisplay> twoWordSearch(String word1, String word2, User currentUser) {
 		TwoWordSearch tws = getNodesAndPrepareClassesTwoWord(word1, word2, currentUser);
-		//do search
-		return tws;
+		return tws.compute();
 	}
 	
 	public TwoWordSearch getNodesAndPrepareClassesTwoWord(String word1, String word2, User currentUser) {

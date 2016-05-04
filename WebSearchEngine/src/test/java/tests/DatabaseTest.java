@@ -82,7 +82,7 @@ public class DatabaseTest extends TestCase {
 	public void testGetNodesByDocsList() {
 		List<Document> docs = docJdbc.getDocsByTermAndPerm("a", 'A');
 		List<Node> nodes = nodeJdbc.getNodesByDocList(docs);
-		assertEquals(nodes.size(), 12);
+		assertEquals(nodes.size(), 13);
 		
 //		System.out.println("Num nodes: " + nodes.size());
 //		for (Node node : nodes) {
@@ -95,7 +95,7 @@ public class DatabaseTest extends TestCase {
 		List<Document> docs = docJdbc.getDocsByTermAndPerm("a", 'A');
 		List<Node> nodes = nodeJdbc.getNodesByDocList(docs);
 		List<Edge> edges = edgeJdbc.getEdgesByNodeList(nodes);
-		assertEquals(edges.size(), 11);
+		assertEquals(edges.size(), 12);
 //		System.out.println("Num edges: " + edges.size());
 //		for (Edge edge : edges) {
 //			System.out.println(edge.getNode1ID() + " " + edge.getNode2ID() + " " + edge.getType());

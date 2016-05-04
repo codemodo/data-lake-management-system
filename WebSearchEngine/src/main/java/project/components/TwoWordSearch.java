@@ -33,12 +33,22 @@ public class TwoWordSearch {
 		shortestPaths = new ArrayList<ArrayList<Node>>();
 	}
 	
-	public void compute() {
+	public List<TwsSinglePathDisplay> compute() {
 		createAdjacencyMatrix();
 		identifyStartAndTargetNodes();
 		for (Node node : startNodes) {
 			bfs(node);
 		}
+		return convertToResultsDisplay();
+	}
+	
+	public List<TwsSinglePathDisplay> convertToResultsDisplay() {
+		List<TwsSinglePathDisplay> displayPaths = new ArrayList<TwsSinglePathDisplay>();
+		for (ArrayList<Node> path : shortestPaths) {
+			TwsSinglePathDisplay twsSpd = new TwsSinglePathDisplay(idToDocs, path);
+			displayPaths.add(twsSpd);
+		}
+		return displayPaths;
 	}
 	
 	public void bfs(Node start) {
