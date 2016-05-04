@@ -26,32 +26,30 @@ public class CommonsCSVParser extends DataParser {
 			Map<String, Integer> headers = parser.getHeaderMap();
 			int docID = getDocID(file);
 			nextNodeID = dbc.getMaxNodeId() + 1;
-			dbc.addToNodeTable(nextNodeID, "", "", docID);
+			nodeList.addToList(nextNodeID, "", "", docID);
 			int rootID = nextNodeID;
-			int rowsAdded = 0;
-
+			int rowNum = 0;
 			for (CSVRecord record : parser) {
-
+				rowNum++;
 				nextNodeID++;
-				dbc.addToEdgeTable(rootID, nextNodeID);
-				dbc.addToNodeTable(nextNodeID, "", "", docID);
+				edgeList.addToList(rootID, nextNodeID);
+				nodeList.addToList(nextNodeID, "", "", docID);
 				int tupleID = nextNodeID;
 
 				for (String key : headers.keySet()) {
 					nextNodeID++;
-					String value = record.get(key);
-					dbc.addToNodeTable(nextNodeID, key, value, docID);
-					dbc.addToEdgeTable(tupleID, nextNodeID);
+					String value = record.get(key).toLowerCase();
+					key = key.toLowerCase();
+					nodeList.addToList(nextNodeID, key, value, docID);
+					edgeList.addToList(tupleID, nextNodeID);
 					addToInvertedIndex(key, value, nextNodeID);
 				}
-
-				if (rowsAdded % 500 == 0) {
-					System.out.println("Added " + rowsAdded + " rows at time "
-							+ System.nanoTime());
+				if (rowNum % 10 == 0){
+					System.out.println("read through " + rowNum + " rows");
 				}
-				rowsAdded++;
 
 			}
+			finishAllRemainingBatches();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return false;
@@ -63,8 +61,7 @@ public class CommonsCSVParser extends DataParser {
 		return true;
 	}
 
-	static void addToInvertedIndex(String key, String value,
-			int nodeID) {
+	static void addToInvertedIndex(String key, String value, int nodeID) {
 
 		String[] keyParts = key.split("\\s+");
 		String[] valueParts = value.split("\\s+");
@@ -75,7 +72,7 @@ public class CommonsCSVParser extends DataParser {
 
 		for (String s : uniqueWords) {
 			if (!NumberUtils.isNumber(s)) {
-				dbc.addToIITable(s, nodeID);
+				indexList.addToList(s, nodeID);
 			}
 		}
 	}

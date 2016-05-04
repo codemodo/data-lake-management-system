@@ -8,12 +8,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
 
 public class DatabaseConnector {
 
 	public static Connection conn = null;
 	public static Statement stmt = null;
-
 
 	public void createDocTable() {
 
@@ -70,13 +70,43 @@ public class DatabaseConnector {
 	public static void addToNodeTable(int nodeID, String key, String value,
 			int docID) {
 		try {
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO node_table " + "VALUES (?, ?, ?, ?)");
+			PreparedStatement ps = conn
+					.prepareStatement("INSERT INTO node_table "
+							+ "VALUES (?, ?, ?, ?)");
 			ps.setInt(1, nodeID);
 			ps.setString(2, key);
 			ps.setString(3, value);
 			ps.setInt(4, docID);
 			ps.executeUpdate();
 
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error inserting row into node table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
+	public static void addToNodeTable(ArrayList<TreeNode> batch) {
+		try {
+			double time = System.nanoTime();
+			System.out.println("add batch of nodes called at " + time);
+
+			String sql = "INSERT INTO node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
+			PreparedStatement ps = conn.prepareStatement(sql);
+
+			for (TreeNode node : batch) {
+				ps.setInt(1, node.nodeID);
+				ps.setString(2, node.k);
+				ps.setString(3, node.v);
+				ps.setInt(4, node.docID);
+				ps.addBatch();
+			}
+			
+
+			ps.executeBatch();
+			ps.close();
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error inserting row into node table.");
@@ -120,9 +150,33 @@ public class DatabaseConnector {
 		}
 	}
 
+	public static void addToIITable(ArrayList<InvertedIndexEntry> batch) {
+		try {
+			String sql = "INSERT INTO ii_table (word, node_id) VALUES (?, ?)";
+			PreparedStatement ps = conn.prepareStatement(sql);
+
+			for (InvertedIndexEntry entry : batch) {
+				ps.setString(1, entry.word);
+				ps.setInt(2, entry.nodeID);
+
+				ps.addBatch();
+			}
+
+			ps.executeBatch();
+			ps.close();
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error inserting row into node table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
 	public void addToIITable(String word, int nodeID) {
 		try {
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO ii_table VALUES (?, ?)");
+			PreparedStatement ps = conn
+					.prepareStatement("INSERT INTO ii_table VALUES (?, ?)");
 			ps.setString(1, word);
 			ps.setInt(2, nodeID);
 			ps.executeUpdate();
@@ -149,6 +203,28 @@ public class DatabaseConnector {
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error in creating edge table.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}
+
+	public static void addToEdgeTable(ArrayList<Edge> batch) {
+		try {
+			String sql = "INSERT INTO edge_table (node_1, node_2) VALUES (?, ?)";
+			PreparedStatement ps = conn.prepareStatement(sql);
+
+			for (Edge entry : batch) {
+				ps.setInt(1, entry.node_1);
+				ps.setInt(2, entry.node_2);
+				ps.addBatch();
+			}
+
+			ps.executeBatch();
+			ps.close();
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error inserting row into node table.");
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
@@ -189,25 +265,25 @@ public class DatabaseConnector {
 		addToEdgeTable(e.node_1, e.node_2, 'T');
 	}
 
-	public int getWordId(String word) {
-		int id = -1;
-		try {
-			String sql = "SELECT word_id FROM word_table WHERE word='" + word
-					+ "'";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ResultSet w = ps.executeQuery();
-			if (w.next()) {
-				id = Integer.parseInt(w.getString("word_id"));
-			}
-		} catch (SQLException ex) {
-			// handle any errors
-			System.err.println("Error finding word id.");
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-		return id;
-	}
+	// public int getWordId(String word) {
+	// int id = -1;
+	// try {
+	// String sql = "SELECT word_id FROM word_table WHERE word='" + word
+	// + "'";
+	// PreparedStatement ps = conn.prepareStatement(sql);
+	// ResultSet w = ps.executeQuery();
+	// if (w.next()) {
+	// id = Integer.parseInt(w.getString("word_id"));
+	// }
+	// } catch (SQLException ex) {
+	// // handle any errors
+	// System.err.println("Error finding word id.");
+	// System.out.println("SQLException: " + ex.getMessage());
+	// System.out.println("SQLState: " + ex.getSQLState());
+	// System.out.println("VendorError: " + ex.getErrorCode());
+	// }
+	// return id;
+	// }
 
 	public int getMaxNodeId() {
 		int id = -1;

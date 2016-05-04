@@ -7,6 +7,9 @@ public class DataParser {
 	static DatabaseConnector dbc = new DatabaseConnector();
 	static int docID;
 	static int maxID = dbc.getMaxNodeId();
+	static InvIndexList indexList = new InvIndexList(dbc);
+	static NodeList nodeList = new NodeList(dbc);
+	static EdgeList edgeList = new EdgeList(dbc);
 	
 	static int getDocID(File file) {
 		// TODO
@@ -27,6 +30,12 @@ public class DataParser {
 		maxID += 1;
 //		System.out.println("ID incremented");
 		return maxID;
+	}
+	
+	static void finishAllRemainingBatches(){
+		indexList.addRemainingRecords();
+		nodeList.addRemainingRecords();
+		edgeList.addRemainingRecords();
 	}
 
 }
