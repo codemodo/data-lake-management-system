@@ -3,7 +3,9 @@ package project.components;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import project.database.Document;
 import project.database.Edge;
@@ -16,14 +18,87 @@ public class TwoWordSearch {
 	public HashSet<Edge> edgesSet;
 	public String searchTerm1;
 	public String searchTerm2;
-	public ArrayList<ArrayList<Node>> shortestPaths;
+	private ArrayList<ArrayList<Node>> shortestPaths;
 	public HashMap<Node, ArrayList<Node>> adjacencyList;
+	public HashSet<Node> startNodes;
+	public HashSet<Node> targetNodes;
+	private int MAX_DEPTH =  25;
+	
 	
 	public TwoWordSearch() {
 		idToDocs = new HashMap<Integer, Document>();
 		docsList = new ArrayList<Document>();
 		nodesSet = new HashSet<Node>();
 		edgesSet = new HashSet<Edge>();
+		shortestPaths = new ArrayList<ArrayList<Node>>();
+	}
+	
+	public void compute() {
+		createAdjacencyMatrix();
+		identifyStartAndTargetNodes();
+		for (Node node : startNodes) {
+			bfs(node);
+		}
+	}
+	
+	public void bfs(Node start) {
+		long startTime = System.currentTimeMillis();
+		HashSet<Node> existingPairings = new HashSet<Node>();
+		boolean depthExceeded = false;
+		
+		//continue until we have found a path from start to every target node or until we have exceeded the MAX_DEPTH
+		while (existingPairings.size() < targetNodes.size() && !depthExceeded) {
+			HashSet<Node> visitedNodes = new HashSet<Node>();
+			//prep queue with start node
+			Queue<ArrayList<Node>> queue = new LinkedList<ArrayList<Node>>();
+			ArrayList<Node> startingList = new ArrayList<Node>();
+			startingList.add(start);
+			queue.add(startingList);
+			
+			while (!queue.isEmpty()) {
+				
+				//get next path from queue (initially just the start node)
+				//if it ends at a target we haven't seen yet, end this bfs and continue to next loop
+				ArrayList<Node> path = queue.poll();
+				Node nextNode = path.get(path.size() - 1);
+				visitedNodes.add(nextNode);
+				if (targetNodes.contains(nextNode) && !existingPairings.contains(nextNode)) {
+					existingPairings.add(nextNode);
+					shortestPaths.add(path);
+					break;
+				}
+				
+				//if we are not yet at max depth: 
+				//get all adjacent nodes for the next node in the path create new paths for each 
+				if (path.size() < MAX_DEPTH) {
+					ArrayList<Node> adjacentNodes = adjacencyList.get(nextNode);
+					for (Node node : adjacentNodes) {
+						//don't make paths back to nodes we have already visited (cycles)
+						if (!visitedNodes.contains(node)) {
+							ArrayList<Node> newPath = new ArrayList<Node>();
+							newPath.addAll(path);
+							newPath.add(node);
+							queue.add(newPath);
+						}
+					}
+				} else {depthExceeded = true;}
+			}
+		}
+		
+		System.out.println("TOTAL RUN TIME: " + (System.currentTimeMillis() - startTime));
+	}
+	
+	public void identifyStartAndTargetNodes() {
+		startNodes = new HashSet<Node>();
+		targetNodes = new HashSet<Node>();
+		for (Node node : adjacencyList.keySet()) {
+			if ((node.getKey() != null && node.getKey().equalsIgnoreCase(searchTerm1)) ||
+					(node.getValue() != null && node.getValue().equalsIgnoreCase(searchTerm1)))
+				startNodes.add(node);
+			else if ((node.getKey() != null && node.getKey().equalsIgnoreCase(searchTerm2)) ||
+					(node.getValue() != null && node.getValue().equalsIgnoreCase(searchTerm2)))
+				targetNodes.add(node);
+		}
 	}
 	
 	public void createAdjacencyMatrix() {
@@ -81,6 +156,15 @@ public class TwoWordSearch {
 	public List<Document> getDocList() {
 		return docsList;
 	}
+
+	public ArrayList<ArrayList<Node>> getShortestPaths() {
+		return shortestPaths;
+	}
+	//used only for testing
+	public void setMaxPathDepth(int depth) {
+		MAX_DEPTH = depth;
+	}
+	
 	
 	
 }

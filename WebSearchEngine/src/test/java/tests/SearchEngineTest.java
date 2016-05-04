@@ -240,86 +240,306 @@ public class SearchEngineTest {
 //		assertTrue(nodeSet.isEmpty());
 //	}
 	
+//	@Test
+//	public void testPrepareNodesAndClassesTwoWord() {
+//		User user = userTemp.getUser("rysmit");
+//		assertNotNull(user);
+//		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
+//		assertNotNull(tws);
+//		assertEquals(tws.getDocList().size(), 2);
+//		assertEquals(tws.idToDocs.keySet().size(), 2);
+//		assertTrue(tws.idToDocs.containsKey(1));
+//		assertTrue(tws.idToDocs.containsKey(5));
+//		assertEquals(tws.searchTerm1, "t");
+//		assertEquals(tws.searchTerm2, "cc");
+//		assertEquals(tws.nodesSet.size(), 24);
+//		assertEquals(tws.edgesSet.size(), 24);
+//	}
+	
+//	@Test 
+//	public void testIdentifyStartAndTargetNodes() {
+//		User user = userTemp.getUser("rysmit");
+//		assertNotNull(user);
+//		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
+//		assertNotNull(tws);
+//		tws.createAdjacencyMatrix();
+//		assertNotNull(tws.adjacencyList);
+//		tws.identifyStartAndTargetNodes();
+//		
+//		HashMap<Integer, Node> idToNode = tws.getIdToNodeMap();
+//		assertEquals(tws.startNodes.size(),  1);
+//		assertTrue(tws.startNodes.contains(idToNode.get(10)));
+//		assertEquals(tws.targetNodes.size(), 1);
+//		assertTrue(tws.targetNodes.contains(idToNode.get(202)));
+//	}
+	
 	@Test
-	public void testPrepareNodesAndClassesTwoWord() {
+	public void testComputeSingleStartMultiDoc() {
 		User user = userTemp.getUser("rysmit");
 		assertNotNull(user);
 		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
-		assertNotNull(tws);
-		assertEquals(tws.getDocList().size(), 2);
-		assertEquals(tws.idToDocs.keySet().size(), 2);
-		assertTrue(tws.idToDocs.containsKey(1));
-		assertTrue(tws.idToDocs.containsKey(5));
-		assertEquals(tws.searchTerm1, "t");
-		assertEquals(tws.searchTerm2, "cc");
-		assertEquals(tws.nodesSet.size(), 24);
-		assertEquals(tws.edgesSet.size(), 24);
+		tws.compute();
+		
+		assertNotNull(tws.getShortestPaths());
+		assertEquals(tws.getShortestPaths().size(), 2);
+		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+			for (Node node : tws.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
+		
+		//set a greater depth and empty list
+		tws.setMaxPathDepth(40);
+		tws.getShortestPaths().removeAll(tws.getShortestPaths());
+		tws.compute();
+		assertNotNull(tws.getShortestPaths());
+		assertEquals(tws.getShortestPaths().size(), 3);
+		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+			for (Node node : tws.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
 	}
+	
+	@Test
+	public void testComputeSingleStartSingleDoc() {
+		User user = userTemp.getUser("rysmit");
+		TwoWordSearch tws2 = engine.getNodesAndPrepareClassesTwoWord("bb", "cc", user);
+		assertNotNull(tws2);
+		tws2.compute();
+		
+		//starting with depth of 25
+		assertNotNull(tws2.getShortestPaths());
+		assertEquals(tws2.getShortestPaths().size(), 2);
+		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+			for (Node node : tws2.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
+		//set a greater depth and empty list
+		tws2.setMaxPathDepth(40);
+		tws2.getShortestPaths().removeAll(tws2.getShortestPaths());
+		tws2.compute();
+		assertNotNull(tws2.getShortestPaths());
+		assertEquals(tws2.getShortestPaths().size(), 3);
+		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+			for (Node node : tws2.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
+	}
+	
+	@Test
+	public void testComputeMultiStartMultiDoc() {
+		User user = userTemp.getUser("rysmit");
+		assertNotNull(user);
+		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("cc", "t", user);
+		tws.compute();
+		
+		assertNotNull(tws.getShortestPaths());
+		assertEquals(tws.getShortestPaths().size(), 2);
+		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+			for (Node node : tws.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
+		
+		//set a greater depth and empty list
+		tws.setMaxPathDepth(40);
+		tws.getShortestPaths().removeAll(tws.getShortestPaths());
+		tws.compute();
+		assertNotNull(tws.getShortestPaths());
+		assertEquals(tws.getShortestPaths().size(), 3);
+		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+			for (Node node : tws.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
+	}
+	
+	@Test
+	public void testComputeMultiStartSingleDoc() {
+		User user = userTemp.getUser("rysmit");
+		TwoWordSearch tws2 = engine.getNodesAndPrepareClassesTwoWord("cc", "bb", user);
+		assertNotNull(tws2);
+		tws2.compute();
+		
+		//starting with depth of 25
+		assertNotNull(tws2.getShortestPaths());
+		assertEquals(tws2.getShortestPaths().size(), 2);
+		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+			for (Node node : tws2.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
+		//set a greater depth and empty list
+		tws2.setMaxPathDepth(40);
+		tws2.getShortestPaths().removeAll(tws2.getShortestPaths());
+		tws2.compute();
+		assertNotNull(tws2.getShortestPaths());
+		assertEquals(tws2.getShortestPaths().size(), 3);
+		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+			for (Node node : tws2.getShortestPaths().get(i)) {
+				System.out.print(node.getId() + " ");
+			}
+			System.out.println();
+		}
+	}
+	
+//	@Test
+//	public void testBFSTwoWordSingleStartMultiDoc() {
+//		User user = userTemp.getUser("rysmit");
+//		assertNotNull(user);
+//		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
+//		assertNotNull(tws);
+//		tws.createAdjacencyMatrix();
+//		assertNotNull(tws.adjacencyList);
+//		tws.identifyStartAndTargetNodes();
+//		
+//		HashMap<Integer, Node> idToNode = tws.getIdToNodeMap();
+//		assertEquals(tws.startNodes.size(),  1);
+//		assertTrue(tws.startNodes.contains(idToNode.get(10)));
+//		assertEquals(tws.targetNodes.size(), 3);
+//		assertTrue(tws.targetNodes.contains(idToNode.get(202)));
+//		assertTrue(tws.targetNodes.contains(idToNode.get(213)));
+//		assertTrue(tws.targetNodes.contains(idToNode.get(234)));
+//		
+//		
+//		tws.bfs(idToNode.get(10));
+//		assertNotNull(tws.getShortestPaths());
+//		assertEquals(tws.getShortestPaths().size(), 2);
+//		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+//			for (Node node : tws.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//		
+//		//set a greater depth and empty list
+//		tws.setMaxPathDepth(40);
+//		tws.getShortestPaths().removeAll(tws.getShortestPaths());
+//		tws.bfs(idToNode.get(10));
+//		assertNotNull(tws.getShortestPaths());
+//		assertEquals(tws.getShortestPaths().size(), 3);
+//		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+//			for (Node node : tws.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//	}
+	
+//	@Test
+//	public void testBFSTwoWordSingleStartSingleDoc() {
+//		User user = userTemp.getUser("rysmit");
+//		TwoWordSearch tws2 = engine.getNodesAndPrepareClassesTwoWord("bb", "cc", user);
+//		assertNotNull(tws2);
+//		tws2.createAdjacencyMatrix();
+//		assertNotNull(tws2.adjacencyList);
+//		tws2.identifyStartAndTargetNodes();
+//		HashMap<Integer, Node> idToNode2 = tws2.getIdToNodeMap();
+//		assertEquals(tws2.startNodes.size(),  1);
+//		assertTrue(tws2.startNodes.contains(idToNode2.get(201)));
+//		assertEquals(tws2.targetNodes.size(), 3);
+//		assertTrue(tws2.targetNodes.contains(idToNode2.get(202)));
+//		assertTrue(tws2.targetNodes.contains(idToNode2.get(213)));
+//		assertTrue(tws2.targetNodes.contains(idToNode2.get(234)));
+//		
+//		//starting with depth of 25
+//		tws2.bfs(idToNode2.get(201));
+//		assertNotNull(tws2.getShortestPaths());
+//		assertEquals(tws2.getShortestPaths().size(), 2);
+//		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+//			for (Node node : tws2.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//		//set a greater depth and empty list
+//		tws2.setMaxPathDepth(40);
+//		tws2.getShortestPaths().removeAll(tws2.getShortestPaths());
+//		tws2.bfs(idToNode2.get(201));
+//		assertNotNull(tws2.getShortestPaths());
+//		assertEquals(tws2.getShortestPaths().size(), 3);
+//		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+//			for (Node node : tws2.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//	}
 
-	@Test
-	public void testCreateAdjacencyMatrixTwoWords() {
-		User user = userTemp.getUser("rysmit");
-		assertNotNull(user);
-		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
-		assertNotNull(tws);
-		tws.createAdjacencyMatrix();
-		assertNotNull(tws.adjacencyList);
-		
-		HashMap<Integer, Node> idToNode = tws.getIdToNodeMap();
-		
-		List<Node> rootNodeList = tws.adjacencyList.get(idToNode.get(1));
-		HashSet<Node> nodeSet = new HashSet<Node>();
-		nodeSet.addAll(rootNodeList);
-		assertEquals(nodeSet.size(), 3);
-		assertTrue(nodeSet.contains(idToNode.get(2)));
-		assertTrue(nodeSet.contains(idToNode.get(3)));
-		assertTrue(nodeSet.contains(idToNode.get(4)));
-		
-		rootNodeList = tws.adjacencyList.get(idToNode.get(2));
-		nodeSet = new HashSet<Node>();
-		nodeSet.addAll(rootNodeList);
-		assertEquals(nodeSet.size(), 3);
-		assertTrue(nodeSet.contains(idToNode.get(5)));
-		assertTrue(nodeSet.contains(idToNode.get(6)));
-		assertTrue(nodeSet.contains(idToNode.get(1)));
-		
-		rootNodeList = tws.adjacencyList.get(idToNode.get(8));
-		nodeSet = new HashSet<Node>();
-		nodeSet.addAll(rootNodeList);
-		assertEquals(nodeSet.size(), 3);
-		assertTrue(nodeSet.contains(idToNode.get(9)));
-		assertTrue(nodeSet.contains(idToNode.get(10)));
-		assertTrue(nodeSet.contains(idToNode.get(7)));
-		
-		rootNodeList = tws.adjacencyList.get(idToNode.get(5));
-		nodeSet = new HashSet<Node>();
-		nodeSet.addAll(rootNodeList);
-		assertEquals(nodeSet.size(), 2);
-		assertTrue(nodeSet.contains(idToNode.get(11)));
-		assertTrue(nodeSet.contains(idToNode.get(2)));
-		
-		rootNodeList = tws.adjacencyList.get(idToNode.get(6));
-		nodeSet = new HashSet<Node>();
-		nodeSet.addAll(rootNodeList);
-		assertEquals(nodeSet.size(), 3);
-		assertTrue(nodeSet.contains(idToNode.get(12)));
-		assertTrue(nodeSet.contains(idToNode.get(2)));
-		assertTrue(nodeSet.contains(idToNode.get(209)));
-		
-		rootNodeList = tws.adjacencyList.get(idToNode.get(4));
-		nodeSet = new HashSet<Node>();
-		nodeSet.addAll(rootNodeList);
-		assertEquals(nodeSet.size(), 2);
-		assertTrue(nodeSet.contains(idToNode.get(7)));
-		assertTrue(nodeSet.contains(idToNode.get(1)));
-		
-		rootNodeList = tws.adjacencyList.get(idToNode.get(7));
-		nodeSet = new HashSet<Node>();
-		nodeSet.addAll(rootNodeList);
-		assertEquals(nodeSet.size(), 3);
-		assertTrue(nodeSet.contains(idToNode.get(8)));
-		assertTrue(nodeSet.contains(idToNode.get(4)));
-		assertTrue(nodeSet.contains(idToNode.get(205)));
-		
-	}
+//	@Test
+//	public void testCreateAdjacencyMatrixTwoWords() {
+//		User user = userTemp.getUser("rysmit");
+//		assertNotNull(user);
+//		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
+//		assertNotNull(tws);
+//		tws.createAdjacencyMatrix();
+//		assertNotNull(tws.adjacencyList);
+//		
+//		HashMap<Integer, Node> idToNode = tws.getIdToNodeMap();
+//		
+//		List<Node> rootNodeList = tws.adjacencyList.get(idToNode.get(1));
+//		HashSet<Node> nodeSet = new HashSet<Node>();
+//		nodeSet.addAll(rootNodeList);
+//		assertEquals(nodeSet.size(), 3);
+//		assertTrue(nodeSet.contains(idToNode.get(2)));
+//		assertTrue(nodeSet.contains(idToNode.get(3)));
+//		assertTrue(nodeSet.contains(idToNode.get(4)));
+//		
+//		rootNodeList = tws.adjacencyList.get(idToNode.get(2));
+//		nodeSet = new HashSet<Node>();
+//		nodeSet.addAll(rootNodeList);
+//		assertEquals(nodeSet.size(), 3);
+//		assertTrue(nodeSet.contains(idToNode.get(5)));
+//		assertTrue(nodeSet.contains(idToNode.get(6)));
+//		assertTrue(nodeSet.contains(idToNode.get(1)));
+//		
+//		rootNodeList = tws.adjacencyList.get(idToNode.get(8));
+//		nodeSet = new HashSet<Node>();
+//		nodeSet.addAll(rootNodeList);
+//		assertEquals(nodeSet.size(), 3);
+//		assertTrue(nodeSet.contains(idToNode.get(9)));
+//		assertTrue(nodeSet.contains(idToNode.get(10)));
+//		assertTrue(nodeSet.contains(idToNode.get(7)));
+//		
+//		rootNodeList = tws.adjacencyList.get(idToNode.get(5));
+//		nodeSet = new HashSet<Node>();
+//		nodeSet.addAll(rootNodeList);
+//		assertEquals(nodeSet.size(), 2);
+//		assertTrue(nodeSet.contains(idToNode.get(11)));
+//		assertTrue(nodeSet.contains(idToNode.get(2)));
+//		
+//		rootNodeList = tws.adjacencyList.get(idToNode.get(6));
+//		nodeSet = new HashSet<Node>();
+//		nodeSet.addAll(rootNodeList);
+//		assertEquals(nodeSet.size(), 3);
+//		assertTrue(nodeSet.contains(idToNode.get(12)));
+//		assertTrue(nodeSet.contains(idToNode.get(2)));
+//		assertTrue(nodeSet.contains(idToNode.get(209)));
+//		
+//		rootNodeList = tws.adjacencyList.get(idToNode.get(4));
+//		nodeSet = new HashSet<Node>();
+//		nodeSet.addAll(rootNodeList);
+//		assertEquals(nodeSet.size(), 2);
+//		assertTrue(nodeSet.contains(idToNode.get(7)));
+//		assertTrue(nodeSet.contains(idToNode.get(1)));
+//		
+//		rootNodeList = tws.adjacencyList.get(idToNode.get(7));
+//		nodeSet = new HashSet<Node>();
+//		nodeSet.addAll(rootNodeList);
+//		assertEquals(nodeSet.size(), 3);
+//		assertTrue(nodeSet.contains(idToNode.get(8)));
+//		assertTrue(nodeSet.contains(idToNode.get(4)));
+//		assertTrue(nodeSet.contains(idToNode.get(205)));
+//		
+//	}
 }
