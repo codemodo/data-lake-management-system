@@ -3,14 +3,14 @@ package DBProject.Extractor;
 public class TreeNode {
 	
 	int nodeID;
-	String key;
-	String value;
+	String k;
+	String v;
 	int docID;
 	
 	public TreeNode(int nodeID, String key, String value, int docID){
 		this.nodeID = nodeID;
-		this.key = key;
-		this.value = value;
+		this.k = key;
+		this.v = value;
 		this.docID = docID;
 	}
 
