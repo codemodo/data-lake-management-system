@@ -32,8 +32,9 @@ public class NodeJdbcTemplate {
 		String SQL = 
 				"select * from node_table " +
 				"where doc_id in " +
-				"( ? )";
-		List<Node> nodes = jdbcTemplateObject.query(SQL, new Object[]{docString}, new NodeMapper());
+				"( " + docString + " )";
+		
+		List<Node> nodes = jdbcTemplateObject.query(SQL, new NodeMapper());
 		return nodes;
 	}
 	
