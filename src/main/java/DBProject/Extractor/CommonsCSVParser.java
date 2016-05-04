@@ -31,7 +31,7 @@ public class CommonsCSVParser extends DataParser {
 			int rowsAdded = 0;
 
 			for (CSVRecord record : parser) {
-				
+
 				nextNodeID++;
 				dbc.addToEdgeTable(rootID, nextNodeID);
 				dbc.addToNodeTable(nextNodeID, "", "", docID);
@@ -42,15 +42,15 @@ public class CommonsCSVParser extends DataParser {
 					String value = record.get(key);
 					dbc.addToNodeTable(nextNodeID, key, value, docID);
 					dbc.addToEdgeTable(tupleID, nextNodeID);
-					addToWordAndInvertedIndexTables(key, nextNodeID);
-					addToWordAndInvertedIndexTables(value, nextNodeID);
+					addToInvertedIndex(key, value, nextNodeID);
 				}
-				
-				if (rowsAdded % 500 == 0){
-					System.out.println("Added " + rowsAdded + " rows at time " + System.nanoTime());
+
+				if (rowsAdded % 500 == 0) {
+					System.out.println("Added " + rowsAdded + " rows at time "
+							+ System.nanoTime());
 				}
 				rowsAdded++;
-				
+
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -63,20 +63,19 @@ public class CommonsCSVParser extends DataParser {
 		return true;
 	}
 
-	static void addToWordAndInvertedIndexTables(String word, int nodeID) {
+	static void addToInvertedIndex(String key, String value,
+			int nodeID) {
 
-
-		String[] parts = word.split("\\s+");
-		Set<String> uniqueWords = new HashSet<String>(Arrays.asList(parts));
+		String[] keyParts = key.split("\\s+");
+		String[] valueParts = value.split("\\s+");
+		Set<String> uniqueWords = new HashSet<String>(Arrays.asList(keyParts));
+		for (String s : valueParts) {
+			uniqueWords.add(s);
+		}
 
 		for (String s : uniqueWords) {
-			if (!NumberUtils.isNumber(word)) {
-				int wordID = dbc.getWordId(s);
-				if (wordID == -1) {
-					wordID = dbc.getMaxWordId() + 1;
-					dbc.addToWordTable(wordID, s);
-				}
-				dbc.addToIITable(wordID, nodeID);
+			if (!NumberUtils.isNumber(s)) {
+				dbc.addToIITable(s, nodeID);
 			}
 		}
 	}
