@@ -42,9 +42,9 @@ import java.util.Map;
  * Hello world!
  *
  */
-public class App {
+public class TestApp {
 
-	static DatabaseConnector dbc = new DatabaseConnector();
+	static TestDatabaseConnector dbc = new TestDatabaseConnector();
 
 	public static void main(String[] args) {
 		// File input = new File(args[0]);
@@ -56,17 +56,14 @@ public class App {
 //				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
 //		 File input = new File(
 //		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
-		File input = new File("Operating_Budget_-_FY2017_Proposed.csv");
-		File input2 = new File ("parks_sample.csv");
-		File input3 = new File("Phila_Health_Centers.csv");
-		File input4 = new File("national_dialysis_sample.csv");
+
 		
 
 		dbc.createConnection();
-//		dbc.deleteTable("ii_table");
-//		dbc.deleteTable("edge_table");
-//		dbc.deleteTable("node_table");
-//		dbc.deleteTable("doc_table");
+//		dbc.deleteTable("test_ii_table");
+//		dbc.deleteTable("test_edge_table");
+//		dbc.deleteTable("test_node_table");
+//		dbc.deleteTable("test_doc_table");
 		
 //		dbc.createDocTable();
 //		dbc.createNodeTable();

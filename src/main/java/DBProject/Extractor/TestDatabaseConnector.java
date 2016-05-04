@@ -10,7 +10,7 @@ import java.sql.Statement;
 import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 
-public class DatabaseConnector {
+public class TestDatabaseConnector extends DatabaseConnector {
 
 	public static Connection conn = null;
 	public static Statement stmt = null;
@@ -18,7 +18,7 @@ public class DatabaseConnector {
 	public void createDocTable() {
 
 		try {
-			String sql = "CREATE TABLE IF NOT EXISTS doc_table "
+			String sql = "CREATE TABLE IF NOT EXISTS test_doc_table "
 					+ "(doc_id INTEGER, " + "PRIMARY KEY (doc_id))";
 
 			stmt.executeUpdate(sql);
@@ -34,7 +34,8 @@ public class DatabaseConnector {
 
 	public void addToDocTable(int docID) {
 		try {
-			String sql = "INSERT INTO doc_table " + "VALUES (" + docID + ")";
+			String sql = "INSERT INTO test_doc_table " + "VALUES (" + docID
+					+ ")";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ps.executeUpdate(sql);
@@ -51,7 +52,7 @@ public class DatabaseConnector {
 	public void createNodeTable() {
 
 		try {
-			String sql = "CREATE TABLE IF NOT EXISTS node_table "
+			String sql = "CREATE TABLE IF NOT EXISTS test_node_table "
 					+ "(node_id INTEGER, " + "k VARCHAR(255), "
 					+ "v VARCHAR(255), " + "doc_id INTEGER, "
 					+ "PRIMARY KEY (node_id))";
@@ -60,7 +61,7 @@ public class DatabaseConnector {
 
 		} catch (SQLException ex) {
 			// handle any errors
-			System.err.println("Error in creating node table.");
+			System.err.println("Error in creating test_node table.");
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
@@ -71,7 +72,7 @@ public class DatabaseConnector {
 			int docID) {
 		try {
 			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO node_table "
+					.prepareStatement("INSERT INTO test_node_table "
 							+ "VALUES (?, ?, ?, ?)");
 			ps.setInt(1, nodeID);
 			ps.setString(2, key);
@@ -81,7 +82,7 @@ public class DatabaseConnector {
 
 		} catch (SQLException ex) {
 			// handle any errors
-			System.err.println("Error inserting row into node table.");
+			System.err.println("Error inserting row into test_node table.");
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
@@ -91,7 +92,7 @@ public class DatabaseConnector {
 	public static void addToNodeTable(ArrayList<TreeNode> batch) {
 		try {
 			conn.setAutoCommit(false);
-			String sql = "INSERT INTO node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
+			String sql = "INSERT INTO test_node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			for (TreeNode node : batch) {
@@ -116,7 +117,7 @@ public class DatabaseConnector {
 
 	public void addToNodeTable(TreeNode n) {
 		try {
-			String sql = "INSERT INTO node_table " + "VALUES (" + n.nodeID
+			String sql = "INSERT INTO test_node_table " + "VALUES (" + n.nodeID
 					+ ", '" + n.k + "', '" + n.v + "', " + n.docID + ")";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -133,7 +134,7 @@ public class DatabaseConnector {
 
 	public void createIITable() {
 		try {
-			String sql = "CREATE TABLE IF NOT EXISTS ii_table "
+			String sql = "CREATE TABLE IF NOT EXISTS test_ii_table "
 					+ "(word VARCHAR(255), " + " node_id INTEGER, "
 					+ " PRIMARY KEY (word, node_id))";
 
@@ -147,10 +148,10 @@ public class DatabaseConnector {
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}
 	}
-	
+
 	public static void addToIITable(ArrayList<InvertedIndexEntry> batch) {
 		try {
-			String sql = "INSERT INTO ii_table (word, node_id) VALUES (?, ?)";
+			String sql = "INSERT INTO test_ii_table (word, node_id) VALUES (?, ?)";
 			conn.setAutoCommit(false);
 			PreparedStatement ps = conn.prepareStatement(sql);
 
@@ -176,7 +177,7 @@ public class DatabaseConnector {
 	public void addToIITable(String word, int nodeID) {
 		try {
 			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO ii_table VALUES (?, ?)");
+					.prepareStatement("INSERT INTO test_ii_table VALUES (?, ?)");
 			ps.setString(1, word);
 			ps.setInt(2, nodeID);
 			ps.executeUpdate();
@@ -194,7 +195,7 @@ public class DatabaseConnector {
 	public void createEdgeTable() {
 
 		try {
-			String sql = "CREATE TABLE IF NOT EXISTS edge_table "
+			String sql = "CREATE TABLE IF NOT EXISTS test_edge_table "
 					+ "(node_1 INTEGER, " + " node_2 INTEGER, "
 					+ " link_type CHAR(1)," + " PRIMARY KEY (node_1, node_2))";
 
@@ -211,8 +212,8 @@ public class DatabaseConnector {
 
 	public static void addToEdgeTable(ArrayList<Edge> batch) {
 		try {
-//			double time = System.nanoTime();
-			String sql = "INSERT INTO edge_table (node_1, node_2) VALUES (?, ?)";
+			// double time = System.nanoTime();
+			String sql = "INSERT INTO test_edge_table (node_1, node_2) VALUES (?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			conn.setAutoCommit(false);
 
@@ -225,6 +226,8 @@ public class DatabaseConnector {
 			ps.executeBatch();
 			conn.commit();
 			ps.close();
+			// System.out.println("edge batch took " + (System.nanoTime() -
+			// time));
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error inserting row into node table.");
@@ -236,8 +239,8 @@ public class DatabaseConnector {
 
 	public static void addToEdgeTable(int parentNode, int childNode, char type) {
 		try {
-			String sql = "SELECT * FROM edge_table WHERE node_1=" + parentNode
-					+ " AND node_2=" + childNode;
+			String sql = "SELECT * FROM test_edge_table WHERE node_1="
+					+ parentNode + " AND node_2=" + childNode;
 			PreparedStatement ps = conn.prepareStatement(sql);
 
 			ResultSet rs = ps.executeQuery();
@@ -245,7 +248,7 @@ public class DatabaseConnector {
 				System.err
 						.println("This edge pair already exists in database.");
 			} else {
-				sql = "INSERT INTO edge_table " + "VALUES (" + parentNode
+				sql = "INSERT INTO test_edge_table " + "VALUES (" + parentNode
 						+ ", " + childNode + ", '" + type + "')";
 				ps = conn.prepareStatement(sql);
 				ps.executeUpdate(sql);
@@ -260,38 +263,10 @@ public class DatabaseConnector {
 		}
 	}
 
-	public void addToEdgeTable(int parentNode, int childNode) {
-		addToEdgeTable(parentNode, childNode, 'T');
-	}
-
-	public void addToEdgeTable(Edge e) {
-		addToEdgeTable(e.node_1, e.node_2, 'T');
-	}
-
-	// public int getWordId(String word) {
-	// int id = -1;
-	// try {
-	// String sql = "SELECT word_id FROM word_table WHERE word='" + word
-	// + "'";
-	// PreparedStatement ps = conn.prepareStatement(sql);
-	// ResultSet w = ps.executeQuery();
-	// if (w.next()) {
-	// id = Integer.parseInt(w.getString("word_id"));
-	// }
-	// } catch (SQLException ex) {
-	// // handle any errors
-	// System.err.println("Error finding word id.");
-	// System.out.println("SQLException: " + ex.getMessage());
-	// System.out.println("SQLState: " + ex.getSQLState());
-	// System.out.println("VendorError: " + ex.getErrorCode());
-	// }
-	// return id;
-	// }
-
 	public int getMaxNodeId() {
 		int id = -1;
 		try {
-			String sql = "SELECT MAX(node_id) AS maxId FROM node_table";
+			String sql = "SELECT MAX(node_id) AS maxId FROM test_node_table";
 			ResultSet rs = stmt.executeQuery(sql);
 			if (rs.next()) {
 				id = rs.getInt("maxId");
@@ -313,7 +288,7 @@ public class DatabaseConnector {
 	public int getMaxWordId() {
 		int id = -1;
 		try {
-			String sql = "SELECT MAX(word_id) AS maxId FROM word_table";
+			String sql = "SELECT MAX(word_id) AS maxId FROM test_word_table";
 			ResultSet rs = stmt.executeQuery(sql);
 			if (rs.next()) {
 				id = rs.getInt("maxId");
@@ -332,100 +307,16 @@ public class DatabaseConnector {
 		return id;
 	}
 
-	public void createConnection() {
-		try {
-
-			conn = DriverManager
-					.getConnection(
-							"jdbc:mysql://datalake.c2lclaii6yaq.us-west-2.rds.amazonaws.com/Datalake?rewriteBatchedStatements=true",
-							"admin", "testing1234");
-			stmt = conn.createStatement();
-
-		} catch (SQLException ex) {
-			// handle any errors
-			System.err.println("Error connecting to database.");
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-	}
-
-	public void printTable(String table) {
-		try {
-			String sql = "SELECT * FROM " + table;
-			ResultSet rs = stmt.executeQuery(sql);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int columnsNumber = rsmd.getColumnCount();
-			System.out.println("TABLE: " + table + " # of columns: "
-					+ columnsNumber);
-			while (rs.next()) {
-				for (int i = 1; i <= columnsNumber; i++) {
-					System.out.print(rs.getString(i) + " ");
-				}
-				System.out.println();
-			}
-		} catch (SQLException ex) {
-			// handle any errors
-			System.err.println("Error printing table.");
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-
-	}
-
-	public void getTableNames() {
-		try {
-
-			DatabaseMetaData dbmd = conn.getMetaData();
-			String[] types = { "TABLE" };
-			ResultSet rs = dbmd.getTables(null, null, "%", types);
-			while (rs.next()) {
-				System.out.println(rs.getString("TABLE_NAME"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void getColumnNames(String table) {
 		try {
 
 			DatabaseMetaData dbmd = conn.getMetaData();
-			ResultSet rs = dbmd.getColumns(null, null, "edge_table", null);
+			ResultSet rs = dbmd.getColumns(null, null, "test_edge_table", null);
 			while (rs.next()) {
 				System.out.println(rs.getString("COLUMN_NAME"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-	}
-
-	public void deleteTable(String table) {
-		try {
-			String sql = "DROP TABLE " + table;
-			stmt.executeUpdate(sql);
-
-		} catch (SQLException ex) {
-			// handle any errors
-			System.err.println("Error deleting " + table + " from database.");
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-	}
-
-	public void closeConnection() {
-		try {
-			conn.close();
-			stmt.close();
-
-		} catch (SQLException ex) {
-			// handle any errors
-			System.err.println("Error closing connection to database.");
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
 		}
 	}
 
