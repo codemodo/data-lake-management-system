@@ -90,12 +90,13 @@ public class DatabaseConnector {
 
 	public static void addToNodeTable(ArrayList<TreeNode> batch) {
 		try {
-			double time = System.nanoTime();
-			System.out.println("add batch of nodes called at " + time);
-
+//			double time = System.nanoTime();
+//			System.out.println("add batch of nodes called at " + time);
+			conn.setAutoCommit(false);
 			String sql = "INSERT INTO node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
 
+//			time = System.nanoTime();
 			for (TreeNode node : batch) {
 				ps.setInt(1, node.nodeID);
 				ps.setString(2, node.k);
@@ -103,10 +104,11 @@ public class DatabaseConnector {
 				ps.setInt(4, node.docID);
 				ps.addBatch();
 			}
-			
 
 			ps.executeBatch();
+			conn.commit();
 			ps.close();
+//			System.out.println("node batch took " + (System.nanoTime() - time));
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error inserting row into node table.");
@@ -149,21 +151,31 @@ public class DatabaseConnector {
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}
 	}
-
+	
 	public static void addToIITable(ArrayList<InvertedIndexEntry> batch) {
 		try {
+//			double time = System.nanoTime();
 			String sql = "INSERT INTO ii_table (word, node_id) VALUES (?, ?)";
+			conn.setAutoCommit(false);
+//			double prepStatemtTime = System.nanoTime();
 			PreparedStatement ps = conn.prepareStatement(sql);
+//			System.out.println("prep statemt II took " + (System.nanoTime() - prepStatemtTime));
 
+//			prepStatemtTime = System.nanoTime();
 			for (InvertedIndexEntry entry : batch) {
 				ps.setString(1, entry.word);
 				ps.setInt(2, entry.nodeID);
 
 				ps.addBatch();
 			}
-
+//			System.out.println("addBatch II took " + (System.nanoTime() - prepStatemtTime));
+			
+//			prepStatemtTime = System.nanoTime();
 			ps.executeBatch();
+//			System.out.println("execBatch II took " + (System.nanoTime() - prepStatemtTime));
+			conn.commit();
 			ps.close();
+//			System.out.println("inv index batch took " + (System.nanoTime() - time));
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error inserting row into node table.");
@@ -211,8 +223,10 @@ public class DatabaseConnector {
 
 	public static void addToEdgeTable(ArrayList<Edge> batch) {
 		try {
+//			double time = System.nanoTime();
 			String sql = "INSERT INTO edge_table (node_1, node_2) VALUES (?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
+			conn.setAutoCommit(false);
 
 			for (Edge entry : batch) {
 				ps.setInt(1, entry.node_1);
@@ -221,7 +235,9 @@ public class DatabaseConnector {
 			}
 
 			ps.executeBatch();
+			conn.commit();
 			ps.close();
+//			System.out.println("edge batch took " + (System.nanoTime() - time));
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error inserting row into node table.");
@@ -334,7 +350,7 @@ public class DatabaseConnector {
 
 			conn = DriverManager
 					.getConnection(
-							"jdbc:mysql://datalake.c2lclaii6yaq.us-west-2.rds.amazonaws.com/Datalake",
+							"jdbc:mysql://datalake.c2lclaii6yaq.us-west-2.rds.amazonaws.com/Datalake?rewriteBatchedStatements=true",
 							"admin", "testing1234");
 			stmt = conn.createStatement();
 

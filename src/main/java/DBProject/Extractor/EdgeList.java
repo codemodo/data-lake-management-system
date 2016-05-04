@@ -13,7 +13,7 @@ public class EdgeList {
 
 	public void addToList(Edge entry) {
 		entries.add(entry);
-		if (entries.size() > 999) {
+		if (entries.size() > 499) {
 			dbc.addToEdgeTable(entries);
 			entries = new ArrayList<Edge>();
 		}

@@ -56,25 +56,25 @@ public class App {
 //				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
 //		 File input = new File(
 //		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
-		File input = new File("Employee_Salaries_-_March_2016_truncated.csv");
+		File input = new File("NYC_salaries_sample.csv");
 
 		dbc.createConnection();
-		dbc.deleteTable("ii_table");
-		dbc.deleteTable("edge_table");
-		dbc.deleteTable("node_table");
-		dbc.deleteTable("doc_table");
+//		dbc.deleteTable("ii_table");
+//		dbc.deleteTable("edge_table");
+//		dbc.deleteTable("node_table");
+//		dbc.deleteTable("doc_table");
 		
-		dbc.createDocTable();
-		dbc.createNodeTable();
-		dbc.createEdgeTable();
-		dbc.createIITable();
+//		dbc.createDocTable();
+//		dbc.createNodeTable();
+//		dbc.createEdgeTable();
+//		dbc.createIITable();
 		
 		parseFile(input, dbc);
 
-		dbc.printTable("node_table");
-		dbc.printTable("edge_table");
-		dbc.printTable("ii_table");
-		dbc.printTable("doc_table");
+//		dbc.printTable("node_table");
+//		dbc.printTable("edge_table");
+//		dbc.printTable("ii_table");
+//		dbc.printTable("doc_table");
 		dbc.closeConnection();
 	}
 

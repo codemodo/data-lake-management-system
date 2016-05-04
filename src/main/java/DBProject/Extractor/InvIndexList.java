@@ -13,7 +13,7 @@ public class InvIndexList {
 
 	public void addToList(InvertedIndexEntry entry) {
 		entries.add(entry);
-		if (entries.size() > 999) {
+		if (entries.size() > 499) {
 			dbc.addToIITable(entries);
 			entries = new ArrayList<InvertedIndexEntry>();
 		}

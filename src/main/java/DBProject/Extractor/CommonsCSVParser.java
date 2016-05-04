@@ -42,9 +42,10 @@ public class CommonsCSVParser extends DataParser {
 					key = key.toLowerCase();
 					nodeList.addToList(nextNodeID, key, value, docID);
 					edgeList.addToList(tupleID, nextNodeID);
+
 					addToInvertedIndex(key, value, nextNodeID);
 				}
-				if (rowNum % 10 == 0){
+				if (rowNum % 50 == 0) {
 					System.out.println("read through " + rowNum + " rows");
 				}
 

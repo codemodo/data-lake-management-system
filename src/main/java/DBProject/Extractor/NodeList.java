@@ -13,7 +13,7 @@ public class NodeList {
 
 	public void addToList(TreeNode entry) {
 		entries.add(entry);
-		if (entries.size() > 999) {
+		if (entries.size() > 499) {
 			dbc.addToNodeTable(entries);
 			entries = new ArrayList<TreeNode>();
 		}
