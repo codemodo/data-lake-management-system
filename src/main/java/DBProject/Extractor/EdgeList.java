@@ -5,23 +5,27 @@ import java.util.ArrayList;
 public class EdgeList {
 	private ArrayList<Edge> entries;
 	DatabaseConnector dbc;
-	
-	public EdgeList(DatabaseConnector dbc){
+
+	public EdgeList(DatabaseConnector dbc) {
 		entries = new ArrayList<Edge>();
 		this.dbc = dbc;
 	}
-	
-	public void addToList(Edge entry){
+
+	public void addToList(Edge entry) {
 		entries.add(entry);
-		if (entries.size() > 999){
+		if (entries.size() > 999) {
 			dbc.addToEdgeTable(entries);
 		}
 		entries = new ArrayList<Edge>();
-		
+
 	}
-	
-	public void addRemainingRecords(){
+
+	public void addRemainingRecords() {
 		dbc.addToEdgeTable(entries);
+	}
+
+	public void addToList(int node1, int node2) {
+		this.addToList(new Edge(node1, node2));
 	}
 
 }
