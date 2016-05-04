@@ -15,9 +15,8 @@ public class NodeList {
 		entries.add(entry);
 		if (entries.size() > 999) {
 			dbc.addToNodeTable(entries);
+			entries = new ArrayList<TreeNode>();
 		}
-		entries = new ArrayList<TreeNode>();
-
 	}
 
 	public void addRemainingRecords() {

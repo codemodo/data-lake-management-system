@@ -15,9 +15,8 @@ public class EdgeList {
 		entries.add(entry);
 		if (entries.size() > 999) {
 			dbc.addToEdgeTable(entries);
+			entries = new ArrayList<Edge>();
 		}
-		entries = new ArrayList<Edge>();
-
 	}
 
 	public void addRemainingRecords() {

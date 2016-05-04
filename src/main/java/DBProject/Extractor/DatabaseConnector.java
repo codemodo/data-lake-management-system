@@ -90,6 +90,8 @@ public class DatabaseConnector {
 
 	public static void addToNodeTable(ArrayList<TreeNode> batch) {
 		try {
+			double time = System.nanoTime();
+			System.out.println("add batch of nodes called at " + time);
 
 			String sql = "INSERT INTO node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
 			PreparedStatement ps = conn.prepareStatement(sql);
@@ -101,6 +103,7 @@ public class DatabaseConnector {
 				ps.setInt(4, node.docID);
 				ps.addBatch();
 			}
+			
 
 			ps.executeBatch();
 			ps.close();

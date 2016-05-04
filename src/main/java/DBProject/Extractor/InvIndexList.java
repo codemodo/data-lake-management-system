@@ -15,9 +15,8 @@ public class InvIndexList {
 		entries.add(entry);
 		if (entries.size() > 999) {
 			dbc.addToIITable(entries);
+			entries = new ArrayList<InvertedIndexEntry>();
 		}
-		entries = new ArrayList<InvertedIndexEntry>();
-
 	}
 
 	public void addRemainingRecords() {

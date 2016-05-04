@@ -44,7 +44,7 @@ public class CommonsCSVParser extends DataParser {
 					edgeList.addToList(tupleID, nextNodeID);
 					addToInvertedIndex(key, value, nextNodeID);
 				}
-				if (rowNum % 500 == 0){
+				if (rowNum % 10 == 0){
 					System.out.println("read through " + rowNum + " rows");
 				}
 
