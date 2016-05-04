@@ -14,40 +14,6 @@ public class DatabaseConnector {
 	public static Connection conn = null;
 	public static Statement stmt = null;
 
-//	public void createWordTable() {
-//
-//		try {
-//			String sql = "CREATE TABLE IF NOT EXISTS word_table "
-//					+ "(word_id INTEGER, " + " word VARCHAR(255), "
-//					+ " PRIMARY KEY (word_id))";
-//
-//			stmt.executeUpdate(sql);
-//
-//		} catch (SQLException ex) {
-//			// handle any errors
-//			System.err.println("Error in creating word table.");
-//			System.out.println("SQLException: " + ex.getMessage());
-//			System.out.println("SQLState: " + ex.getSQLState());
-//			System.out.println("VendorError: " + ex.getErrorCode());
-//		}
-//	}
-
-//	public void addToWordTable(int word_id, String word) {
-//		try {
-//			String sql = "INSERT INTO word_table " + "VALUES (" + word_id
-//					+ ", '" + word + "')";
-//			PreparedStatement ps = conn.prepareStatement(sql);
-//
-//			ps.executeUpdate(sql);
-//
-//		} catch (SQLException ex) {
-//			// handle any errors
-//			System.err.println("Error inserting row into word table.");
-//			System.out.println("SQLException: " + ex.getMessage());
-//			System.out.println("SQLState: " + ex.getSQLState());
-//			System.out.println("VendorError: " + ex.getErrorCode());
-//		}
-//	}
 
 	public void createDocTable() {
 
@@ -88,8 +54,7 @@ public class DatabaseConnector {
 			String sql = "CREATE TABLE IF NOT EXISTS node_table "
 					+ "(node_id INTEGER, " + "k VARCHAR(255), "
 					+ "v VARCHAR(255), " + "doc_id INTEGER, "
-					+ "PRIMARY KEY (node_id))";// ,"
-			// + "FOREIGN KEY (doc_id) REFERENCES doc_table(doc_id))";
+					+ "PRIMARY KEY (node_id))";
 
 			stmt.executeUpdate(sql);
 
@@ -141,10 +106,8 @@ public class DatabaseConnector {
 	public void createIITable() {
 		try {
 			String sql = "CREATE TABLE IF NOT EXISTS ii_table "
-					+ "(word_id VARCHAR(255), " + " node_id INTEGER, "
-					+ " PRIMARY KEY (word_id, node_id))";
-			// + " FOREIGN KEY (word_id) REFERENCES word_table(word_id),"
-			// + " FOREIGN KEY (node_id) REFERENCES node_table(node_id))";
+					+ "(word VARCHAR(255), " + " node_id INTEGER, "
+					+ " PRIMARY KEY (word, node_id))";
 
 			stmt.executeUpdate(sql);
 
@@ -157,12 +120,12 @@ public class DatabaseConnector {
 		}
 	}
 
-	public void addToIITable(String wordID, int nodeID) {
+	public void addToIITable(String word, int nodeID) {
 		try {
-			String sql = "INSERT INTO ii_table VALUES (" + wordID + ", "
-					+ nodeID + ")";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			ps.executeUpdate(sql);
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO ii_table VALUES (?, ?)");
+			ps.setString(1, word);
+			ps.setInt(2, nodeID);
+			ps.executeUpdate();
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -170,7 +133,7 @@ public class DatabaseConnector {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
-			System.out.println("WordID: " + wordID + " ndoeID: " + nodeID);
+			System.out.println("Word: " + word + " nodeID: " + nodeID);
 		}
 	}
 
@@ -179,10 +142,7 @@ public class DatabaseConnector {
 		try {
 			String sql = "CREATE TABLE IF NOT EXISTS edge_table "
 					+ "(node_1 INTEGER, " + " node_2 INTEGER, "
-					+ " link_type CHAR(1)," + " PRIMARY KEY (node_1, node_2))";// ,"
-			// + " FOREIGN KEY (node_1) REFERENCES node_table(node_id),"
-			// + " FOREIGN KEY (node_2) REFERENCES node_table(node_id),"
-			// + " FOREIGN KEY (doc_id) REFERENCES doc_table(doc_id))";
+					+ " link_type CHAR(1)," + " PRIMARY KEY (node_1, node_2))";
 
 			stmt.executeUpdate(sql);
 
@@ -366,8 +326,6 @@ public class DatabaseConnector {
 		try {
 			String sql = "DROP TABLE " + table;
 			stmt.executeUpdate(sql);
-			// sql="SELECT * FROM " + table;
-			// stmt.executeQuery(sql);
 
 		} catch (SQLException ex) {
 			// handle any errors
