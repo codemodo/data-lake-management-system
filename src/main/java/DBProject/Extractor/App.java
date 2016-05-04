@@ -56,7 +56,11 @@ public class App {
 //				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
 //		 File input = new File(
 //		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
-		File input = new File("NYC_salaries_sample.csv");
+		File input = new File("Operating_Budget_-_FY2017_Proposed.csv");
+		File input2 = new File ("parks_sample.csv");
+		File input3 = new File("Phila_Health_Centers.csv");
+		File input4 = new File("national_dialysis_sample.csv");
+		
 
 		dbc.createConnection();
 //		dbc.deleteTable("ii_table");
@@ -70,6 +74,9 @@ public class App {
 //		dbc.createIITable();
 		
 		parseFile(input, dbc);
+		parseFile(input2, dbc);
+		parseFile(input3, dbc);
+		parseFile(input4, dbc);
 
 //		dbc.printTable("node_table");
 //		dbc.printTable("edge_table");
