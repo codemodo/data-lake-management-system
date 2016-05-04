@@ -24,6 +24,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import project.components.S3Interface;
 import project.components.SearchEngine;
 import project.database.DocumentJdbcTemplate;
+import project.database.EdgeJdbcTemplate;
+import project.database.NodeJdbcTemplate;
 import project.database.UserJdbcTemplate;
 
 /**
@@ -80,15 +82,29 @@ public class RootConfig {
 		docTemp.setDataSource(getDataSource());
 		return docTemp;
 	}
+	
+	@Bean(name="nodeJdbcBean")
+	public NodeJdbcTemplate getNodeJdbcTemplate() {
+		NodeJdbcTemplate nodeTemp = new NodeJdbcTemplate();
+		nodeTemp.setDataSource(getDataSource());
+		return nodeTemp;
+	}
+	
+	@Bean(name="edgeJdbcBean")
+	public EdgeJdbcTemplate getEdgeJdbcTemplate() {
+		EdgeJdbcTemplate edgeTemp = new EdgeJdbcTemplate();
+		edgeTemp.setDataSource(getDataSource());
+		return edgeTemp;
+	}
 
 	@Bean
 	public DataSource getDataSource() {
 	    DriverManagerDataSource dataSource = new DriverManagerDataSource();
 	    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-	    dataSource.setUrl("jdbc:mysql://datalake.c2lclaii6yaq.us-west-2.rds.amazonaws.com/Datalake" + 
+	    dataSource.setUrl("jdbc:mysql://ec2-50-19-202-216.compute-1.amazonaws.com/EMP" + 
 	    		"?useUnicode=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC");
-	    dataSource.setUsername("admin");
-	    dataSource.setPassword("testing1234");
+	    dataSource.setUsername("ryan");
+	    dataSource.setPassword("mysqladmin");
 	    return dataSource;
 	}
 	
