@@ -28,10 +28,8 @@ public class CommonsCSVParser extends DataParser {
 			nextNodeID = dbc.getMaxNodeId() + 1;
 			dbc.addToNodeTable(nextNodeID, "", "", docID);
 			int rootID = nextNodeID;
-			int rowsAdded = 0;
 
 			for (CSVRecord record : parser) {
-
 				nextNodeID++;
 				dbc.addToEdgeTable(rootID, nextNodeID);
 				dbc.addToNodeTable(nextNodeID, "", "", docID);
@@ -39,17 +37,12 @@ public class CommonsCSVParser extends DataParser {
 
 				for (String key : headers.keySet()) {
 					nextNodeID++;
-					String value = record.get(key);
+					String value = record.get(key).toLowerCase();
+					key = key.toLowerCase();
 					dbc.addToNodeTable(nextNodeID, key, value, docID);
 					dbc.addToEdgeTable(tupleID, nextNodeID);
 					addToInvertedIndex(key, value, nextNodeID);
 				}
-
-				if (rowsAdded % 500 == 0) {
-					System.out.println("Added " + rowsAdded + " rows at time "
-							+ System.nanoTime());
-				}
-				rowsAdded++;
 
 			}
 		} catch (FileNotFoundException e) {
@@ -63,8 +56,7 @@ public class CommonsCSVParser extends DataParser {
 		return true;
 	}
 
-	static void addToInvertedIndex(String key, String value,
-			int nodeID) {
+	static void addToInvertedIndex(String key, String value, int nodeID) {
 
 		String[] keyParts = key.split("\\s+");
 		String[] valueParts = value.split("\\s+");

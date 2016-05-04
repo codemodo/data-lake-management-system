@@ -62,11 +62,11 @@ public class App {
 		dbc.deleteTable("ii_table");
 		dbc.deleteTable("edge_table");
 		dbc.deleteTable("node_table");
-		dbc.deleteTable("word_table");
+//		dbc.deleteTable("word_table");
 		dbc.deleteTable("doc_table");
 		
 		dbc.createDocTable();
-		dbc.createWordTable();
+//		dbc.createWordTable();
 		dbc.createNodeTable();
 		dbc.createEdgeTable();
 		dbc.createIITable();
