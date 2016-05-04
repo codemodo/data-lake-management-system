@@ -61,4 +61,23 @@ public class DocumentJdbcTemplate {
 		jdbcTemplateObject.update(SQL, charString, id);
 		System.out.println("Set permission on Document with ID: " + id + " to: " + charString);
 	}
+	
+	public List<Document> getDocsByTermAndPerm(String searchTerm, char permLevel) {
+		String charString = Character.toString(permLevel).toUpperCase();
+		String SQL = 
+				"select * from Document " +
+				"where permission = ? " +
+				"and id in " +
+				"( " +
+				  "select distinct(doc_id) from node_table " +
+				  "where node_id in " +
+				  "( " +
+				   " select node_id " +
+				    "from ii_table " +
+				   " where word_id = ? " +
+				  ")  " +
+				");";
+		List<Document> docs = jdbcTemplateObject.query(SQL, new Object[]{charString, searchTerm}, new DocumentMapper());
+		return docs;
+	}
 }
