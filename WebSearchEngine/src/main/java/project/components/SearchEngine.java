@@ -1,6 +1,7 @@
 package project.components;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -45,16 +46,51 @@ public class SearchEngine {
 		return results;
 	}
 	
+	public TwoWordSearch twoWordSearch(String word1, String word2, User currentUser) {
+		TwoWordSearch tws = getNodesAndPrepareClassesTwoWord(word1, word2, currentUser);
+		//do search
+		return tws;
+	}
+	
+	public TwoWordSearch getNodesAndPrepareClassesTwoWord(String word1, String word2, User currentUser) {
+		TwoWordSearch tws = new TwoWordSearch();
+		tws.setSearchTerm1(word1);
+		tws.setSearchTerm2(word2);
+		List<Document> docsWord1;
+		List<Document> docsWord2;
+		if (currentUser == null) {
+			docsWord1 = docJdbc.getDocsByTermAndPerm(word1, 'A');
+			docsWord2 = docJdbc.getDocsByTermAndPerm(word2, 'A');
+		}
+		else {
+			docsWord1 = docJdbc.getDocsByTermAndUser(word1, currentUser);
+			docsWord2 = docJdbc.getDocsByTermAndUser(word2, currentUser);
+		}
+		if (docsWord1.isEmpty() && docsWord2.isEmpty())
+			return tws;
+		for (Document doc : docsWord1)
+			tws.addDoc(doc);
+		for (Document doc : docsWord2)
+			tws.addDoc(doc);
+		List<Node> nodes = nodeJdbc.getNodesByDocList(tws.getDocList());
+		List<Edge> edges = edgeJdbc.getEdgesByNodeListIncludeLinks(nodes);
+		tws.addNodes(nodes);
+		tws.addEdges(edges);
+		return tws;
+	}
+	
 	public List<SingleWordSingleSearch> getNodesAndPrepareClasses(String word, User currentUser) {
+		List<SingleWordSingleSearch> swssList = new ArrayList<SingleWordSingleSearch>();
 		List<Document> docs;
 		if (currentUser == null)
 			docs = docJdbc.getDocsByTermAndPerm(word, 'A');
 		else
 			docs = docJdbc.getDocsByTermAndUser(word, currentUser);
+		if (docs.isEmpty())
+			return swssList;
 		List<Node> nodes = nodeJdbc.getNodesByDocList(docs);
 		List<Edge> edges = edgeJdbc.getEdgesByNodeList(nodes);
 		
-		List<SingleWordSingleSearch> swssList = new ArrayList<SingleWordSingleSearch>();
 		for (Document doc : docs) {
 			SingleWordSingleSearch swss = new SingleWordSingleSearch();
 			swss.setDocument(doc);

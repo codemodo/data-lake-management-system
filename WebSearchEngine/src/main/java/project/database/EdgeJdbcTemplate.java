@@ -20,6 +20,17 @@ public class EdgeJdbcTemplate {
 		String nodeString = createNodeIdString(nodes);
 		String SQL = 
 				"select * from edge_table " +
+				"where link_type = 'T' " +
+				"and node_1 in " +
+				"( " + createNodeIdString(nodes) + " )";
+		List<Edge> edges = jdbcTemplateObject.query(SQL, new EdgeMapper());
+		return edges;
+	}
+	
+	public List<Edge> getEdgesByNodeListIncludeLinks(List<Node> nodes) {
+		String nodeString = createNodeIdString(nodes);
+		String SQL = 
+				"select * from edge_table " +
 				"where node_1 in " +
 				"( " + createNodeIdString(nodes) + " )";
 		List<Edge> edges = jdbcTemplateObject.query(SQL, new EdgeMapper());
