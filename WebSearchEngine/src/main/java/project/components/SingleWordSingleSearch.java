@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 import org.json.simple.JSONArray;
@@ -20,6 +21,7 @@ public class SingleWordSingleSearch {
 	public HashMap<Node, ArrayList<Node>> adjacencyList;
 	public JSONArray nodesJson;
 	public JSONArray edgesJson;
+	private final int MAX_DISPLAY_LENGTH = 25;
 	
 	public SingleWordSingleSearch() {
 		nodesSet = new HashSet<Node>();
@@ -37,22 +39,55 @@ public class SingleWordSingleSearch {
 	
 	public JSONArray getNodesJson() {
 		JSONArray jArray = new JSONArray();
-		for (Node node : pathFromRoot) {
+		if (pathFromRoot == null)
+			return jArray;
+		System.out.println();
+		List<Node> displayPath;
+		if (pathFromRoot.size() > MAX_DISPLAY_LENGTH) {
+			displayPath = pathFromRoot.subList(pathFromRoot.size() - MAX_DISPLAY_LENGTH, pathFromRoot.size());
+		} else {
+			displayPath = pathFromRoot;
+		}
+		for (Node node : displayPath) {
 			JSONObject nodeJson = new JSONObject();
 			nodeJson.put("id", node.getId());
-			nodeJson.put("label", node.getKey() + ", " + node.getValue());
+			nodeJson.put("label", getNodeDisplayString(node));
 			jArray.add(nodeJson);
 		}
 		nodesJson = jArray;
 		return jArray;
 	}
 	
+	private String getNodeDisplayString(Node node) {
+		if (node == null)
+			return "";
+		String nodeString = "";
+		boolean insertComma = false;
+		if (node.getKey() != null) {
+			nodeString += node.getKey();
+			insertComma = true;
+		}
+		if (insertComma)
+			nodeString += ", ";
+		if (node.getValue() != null)
+			nodeString += node.getValue();
+		return nodeString;
+	}
+	
 	public JSONArray getEdgesJson() {
 		JSONArray jArray = new JSONArray();
-		for (int i = 0; i < pathFromRoot.size() - 1; i++) {
+		if (pathFromRoot == null)
+			return jArray;
+		List<Node> displayPath;
+		if (pathFromRoot.size() > MAX_DISPLAY_LENGTH) {
+			displayPath = pathFromRoot.subList(pathFromRoot.size() - MAX_DISPLAY_LENGTH, pathFromRoot.size());
+		} else {
+			displayPath = pathFromRoot;
+		}
+		for (int i = 0; i < displayPath.size() - 1; i++) {
 			JSONObject edgeJson = new JSONObject();
-			edgeJson.put("from", pathFromRoot.get(i).getId());
-			edgeJson.put("to", pathFromRoot.get(i + 1).getId());
+			edgeJson.put("from", displayPath.get(i).getId());
+			edgeJson.put("to", displayPath.get(i + 1).getId());
 			edgeJson.put("arrows", "to");
 			jArray.add(edgeJson);
 		}
@@ -69,8 +104,8 @@ public class SingleWordSingleSearch {
 		while (!queue.isEmpty()) {
 			ArrayList<Node> path = queue.poll();
 			Node nextNode = path.get(path.size() - 1);
-			if ((nextNode.getKey() != null && nextNode.getKey().equalsIgnoreCase(searchTerm)) ||
-					(nextNode.getValue() != null && nextNode.getValue().equalsIgnoreCase(searchTerm))) {
+			if ((nextNode.getKey() != null && nextNode.getKey().toLowerCase().indexOf(searchTerm.toLowerCase()) > -1) ||
+					(nextNode.getValue() != null && nextNode.getValue().toLowerCase().indexOf(searchTerm.toLowerCase()) > -1)) {
 				return path;
 			}
 			

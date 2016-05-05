@@ -6,9 +6,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.List;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +22,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.FileCopyUtils;
@@ -54,6 +60,10 @@ public class AccountsController {
 	@Autowired
 	@Qualifier("sessionHelperFunctionsBean")
 	SessionHelperFunctions shf;
+	
+	@Autowired
+	@Qualifier("jmsTemplateBean")
+	JmsTemplate jmsTemplate;
 	
 	@RequestMapping("/")
 	public String home(Model model, HttpSession session) {
@@ -104,7 +114,14 @@ public class AccountsController {
 	@RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
 	public String handleFileUpload(@RequestParam("file") MultipartFile[] files, HttpSession session) {
 		if (shf.isLoggedIn(session)) {
-			s3Manager.upload(files, (String) session.getAttribute("username"));
+			List<Document> newDocs = s3Manager.upload(files, (String) session.getAttribute("username"));
+			//sending messages to extractor
+			for (Document doc : newDocs) {
+				final String message = doc.getId() + " : " + doc.getName();
+				jmsTemplate.send(new MessageCreator() {
+					public Message createMessage(Session session) throws JMSException {
+					     return session.createTextMessage(message);}});
+				}
 		}
 		return "redirect:/";
 	}

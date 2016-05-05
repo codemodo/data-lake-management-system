@@ -3,6 +3,7 @@ package project.components;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 
+import project.database.Document;
 import project.database.DocumentJdbcTemplate;
 
 import org.apache.commons.io.IOUtils;
@@ -69,7 +70,7 @@ public class S3Interface {
 	 * @param files
 	 * @return
 	 */
-	public List<PutObjectResult> upload(MultipartFile[] files, String username) {
+	public List<Document> upload(MultipartFile[] files, String username) {
 		//save all files to local storage
 		ArrayList<TempFileData> tempFiles = new ArrayList<TempFileData>();
 		for (MultipartFile file : files) {
@@ -89,16 +90,18 @@ public class S3Interface {
 		}
 		//upload files to s3 one at a time
 		List<PutObjectResult> putObjectResults = new ArrayList<PutObjectResult>();
+		List<Document> docsAddedToDB = new ArrayList<Document>();
 		for (TempFileData file : tempFiles) {
 			try {
 				putObjectResults.add(processSingleFile(file));
-				docJdbc.create(username, file.getName());
+				int id = docJdbc.createAndReturnKey(username, file.getName());
+				docsAddedToDB.add(docJdbc.getDocument(id));
 			}
 			catch (Exception e) {
 				System.out.println("An error occurred uploading file: " + file.getName());
 			}
 		}
-		return putObjectResults;
+		return docsAddedToDB;
 	}
 
 	public byte[] getFileStream(String docName) throws IOException {

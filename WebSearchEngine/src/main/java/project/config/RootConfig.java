@@ -12,6 +12,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import com.amazonaws.auth.AWSCredentials;
@@ -20,6 +23,7 @@ import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 
+import DBProject.Extractor.ExtractorJmsListener;
 import net.sf.ehcache.config.CacheConfiguration;
 import project.components.S3Interface;
 import project.components.SearchEngine;
@@ -28,12 +32,15 @@ import project.database.EdgeJdbcTemplate;
 import project.database.NodeJdbcTemplate;
 import project.database.UserJdbcTemplate;
 import project.webComponents.SessionHelperFunctions;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.springframework.jms.support.destination.DynamicDestinationResolver;
 
 /**
  * 
  */
 @Configuration
 @EnableCaching
+@EnableJms
 @ComponentScan({})
 public class RootConfig {
 	
@@ -42,13 +49,37 @@ public class RootConfig {
 	public final static String AWS_SECRET_KEY = "x3dpvqkpO2NtZP/AspJcMNVvgo6i3898VBpELKvr";
 	public final static String S3_BUCKET_NAME = "data-lake-five-fifty";
 	
-//	@Bean(name = "mapper")
-//	public PropertiesFactoryBean mapper() {
-//	    PropertiesFactoryBean bean = new PropertiesFactoryBean();
-//	    bean.setLocation(new ClassPathResource("project.webComponents.properties"));
-//	    return bean;
-//	}
+//ActiveMQ stuff
+	@Bean
+    public ExtractorJmsListener myService() {
+        return new ExtractorJmsListener();
+    }
+	@Bean
+    public DefaultJmsListenerContainerFactory myJmsListenerContainerFactory() {
+      DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+      factory.setConnectionFactory(getConnectionFactory());
+      factory.setDestinationResolver(getDestResolver());
+      factory.setConcurrency("5");
+      return factory;
+    }
+	@Bean
+	public ActiveMQConnectionFactory getConnectionFactory() {
+		ActiveMQConnectionFactory acf = new ActiveMQConnectionFactory();
+		acf.setBrokerURL("tcp://0.0.0.0:61616");
+		return acf;
+	}
+	@Bean 
+	public DynamicDestinationResolver getDestResolver() {
+		return new DynamicDestinationResolver();
+	}
 	
+	@Bean(name="jmsTemplateBean")
+	public JmsTemplate getJmsTemplate() {
+		JmsTemplate temp = new JmsTemplate(getConnectionFactory());
+		temp.setDefaultDestinationName("testingQueue");
+		return temp;
+	}
+
 	
 //general beans
 	@Bean(name="tempDir")
@@ -102,10 +133,10 @@ public class RootConfig {
 	public DataSource getDataSource() {
 	    DriverManagerDataSource dataSource = new DriverManagerDataSource();
 	    dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-	    dataSource.setUrl("jdbc:mysql://ec2-50-19-202-216.compute-1.amazonaws.com/EMP" + 
+	    dataSource.setUrl("jdbc:mysql://datalake.c2lclaii6yaq.us-west-2.rds.amazonaws.com/Datalake" + 
 	    		"?useUnicode=true&useJDBCCompliantTimezoneShift=true&serverTimezone=UTC");
-	    dataSource.setUsername("ryan");
-	    dataSource.setPassword("mysqladmin");
+	    dataSource.setUsername("admin");
+	    dataSource.setPassword("testing1234");
 	    return dataSource;
 	}
 	

@@ -17,9 +17,11 @@
 <body>
 	
 	<div id="top-bar">
-		<h2 id="header-title">
-			550 Data Lake 
-		</h2>
+		<a href="/">
+			<h2 id="header-title">
+				550 Data Lake 
+			</h2>
+		</a>
 		<c:choose>
 	  		<c:when test="${!isLoggedIn}">
 				<div class="bar-button-box">
@@ -76,14 +78,26 @@
 				</div>
 				
 				<c:forEach items="${resultsList}" var="result">
-					<a href="/downloadFile/${result.document.getId()}">
 						<div class="panel panel-primary">
 							<div class="panel-heading">${result.document.getName()}</div>
 							<div class="panel-body">
 						   		<div class="graph-display" id="${result.document.getId()}"></div>
 							</div>
+							<div class="panel-footer">
+								<div class="btn-group">
+									<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										Download File<span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu">
+										<li>
+										<a href="/downloadFile/${result.document.getId()}">
+											${result.document.getName()}
+										</a>
+										</li>
+									</ul>
+								</div>
+							</div>
 						</div>
-					</a>
 				</c:forEach>
 					
 			</div>

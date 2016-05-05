@@ -17,6 +17,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import project.components.SearchEngine;
 import project.components.SingleWordSingleSearch;
 import project.components.TwoWordSearch;
+import project.components.TwsSinglePathDisplay;
+import project.database.Document;
 import project.database.DocumentJdbcTemplate;
 import project.database.EdgeJdbcTemplate;
 import project.database.Node;
@@ -161,6 +163,9 @@ public class SearchEngineTest {
 //		assertEquals(sp.get(4).getId(), 10);
 //		System.out.println("");
 //	}
+	
+
+	
 //	
 //	@Test
 //	public void testCreateAdjacencyMatrix() {
@@ -240,6 +245,8 @@ public class SearchEngineTest {
 //		assertTrue(nodeSet.isEmpty());
 //	}
 	
+	
+/*TWO WORD SEARCH TESTS*/
 //	@Test
 //	public void testPrepareNodesAndClassesTwoWord() {
 //		User user = userTemp.getUser("rysmit");
@@ -273,126 +280,149 @@ public class SearchEngineTest {
 //		assertTrue(tws.targetNodes.contains(idToNode.get(202)));
 //	}
 	
+/*TWO DISPLAY TEST*/
 	@Test
-	public void testComputeSingleStartMultiDoc() {
+	public void testComputeDisplay() {
 		User user = userTemp.getUser("rysmit");
 		assertNotNull(user);
 		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
-		tws.compute();
-		
-		assertNotNull(tws.getShortestPaths());
-		assertEquals(tws.getShortestPaths().size(), 2);
-		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
-			for (Node node : tws.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
+		List<TwsSinglePathDisplay> twsSpd = tws.compute();
+		assertNotNull(twsSpd);
+		assertEquals(twsSpd.size(), 2);
+		for (TwsSinglePathDisplay current : twsSpd) {
+			System.out.print("DOCS: ");
+			for (Document doc : current.getDocsInPath())
+				System.out.print(doc.getId() + " ");
 			System.out.println();
+			System.out.println(current.getNodesJson());
+			System.out.println(current.getEdgesJson()+ "\n");
 		}
 		
-		//set a greater depth and empty list
-		tws.setMaxPathDepth(40);
-		tws.getShortestPaths().removeAll(tws.getShortestPaths());
-		tws.compute();
-		assertNotNull(tws.getShortestPaths());
-		assertEquals(tws.getShortestPaths().size(), 3);
-		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
-			for (Node node : tws.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
-			System.out.println();
-		}
-	}
 	
-	@Test
-	public void testComputeSingleStartSingleDoc() {
-		User user = userTemp.getUser("rysmit");
-		TwoWordSearch tws2 = engine.getNodesAndPrepareClassesTwoWord("bb", "cc", user);
-		assertNotNull(tws2);
-		tws2.compute();
-		
-		//starting with depth of 25
-		assertNotNull(tws2.getShortestPaths());
-		assertEquals(tws2.getShortestPaths().size(), 2);
-		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
-			for (Node node : tws2.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
-			System.out.println();
-		}
-		//set a greater depth and empty list
-		tws2.setMaxPathDepth(40);
-		tws2.getShortestPaths().removeAll(tws2.getShortestPaths());
-		tws2.compute();
-		assertNotNull(tws2.getShortestPaths());
-		assertEquals(tws2.getShortestPaths().size(), 3);
-		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
-			for (Node node : tws2.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
-			System.out.println();
-		}
 	}
-	
-	@Test
-	public void testComputeMultiStartMultiDoc() {
-		User user = userTemp.getUser("rysmit");
-		assertNotNull(user);
-		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("cc", "t", user);
-		tws.compute();
-		
-		assertNotNull(tws.getShortestPaths());
-		assertEquals(tws.getShortestPaths().size(), 2);
-		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
-			for (Node node : tws.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
-			System.out.println();
-		}
-		
-		//set a greater depth and empty list
-		tws.setMaxPathDepth(40);
-		tws.getShortestPaths().removeAll(tws.getShortestPaths());
-		tws.compute();
-		assertNotNull(tws.getShortestPaths());
-		assertEquals(tws.getShortestPaths().size(), 3);
-		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
-			for (Node node : tws.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
-			System.out.println();
-		}
-	}
-	
-	@Test
-	public void testComputeMultiStartSingleDoc() {
-		User user = userTemp.getUser("rysmit");
-		TwoWordSearch tws2 = engine.getNodesAndPrepareClassesTwoWord("cc", "bb", user);
-		assertNotNull(tws2);
-		tws2.compute();
-		
-		//starting with depth of 25
-		assertNotNull(tws2.getShortestPaths());
-		assertEquals(tws2.getShortestPaths().size(), 2);
-		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
-			for (Node node : tws2.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
-			System.out.println();
-		}
-		//set a greater depth and empty list
-		tws2.setMaxPathDepth(40);
-		tws2.getShortestPaths().removeAll(tws2.getShortestPaths());
-		tws2.compute();
-		assertNotNull(tws2.getShortestPaths());
-		assertEquals(tws2.getShortestPaths().size(), 3);
-		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
-			for (Node node : tws2.getShortestPaths().get(i)) {
-				System.out.print(node.getId() + " ");
-			}
-			System.out.println();
-		}
-	}
-	
+
+/*COMPUTE TESTS*/	
+//	@Test
+//	public void testComputeSingleStartMultiDoc() {
+//		User user = userTemp.getUser("rysmit");
+//		assertNotNull(user);
+//		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("t", "cc", user);
+//		tws.compute();
+//		
+//		assertNotNull(tws.getShortestPaths());
+//		assertEquals(tws.getShortestPaths().size(), 2);
+//		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+//			for (Node node : tws.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//		
+//		//set a greater depth and empty list
+//		tws.setMaxPathDepth(40);
+//		tws.getShortestPaths().removeAll(tws.getShortestPaths());
+//		tws.compute();
+//		assertNotNull(tws.getShortestPaths());
+//		assertEquals(tws.getShortestPaths().size(), 3);
+//		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+//			for (Node node : tws.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//	}
+//	
+//	@Test
+//	public void testComputeSingleStartSingleDoc() {
+//		User user = userTemp.getUser("rysmit");
+//		TwoWordSearch tws2 = engine.getNodesAndPrepareClassesTwoWord("bb", "cc", user);
+//		assertNotNull(tws2);
+//		tws2.compute();
+//		
+//		//starting with depth of 25
+//		assertNotNull(tws2.getShortestPaths());
+//		assertEquals(tws2.getShortestPaths().size(), 2);
+//		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+//			for (Node node : tws2.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//		//set a greater depth and empty list
+//		tws2.setMaxPathDepth(40);
+//		tws2.getShortestPaths().removeAll(tws2.getShortestPaths());
+//		tws2.compute();
+//		assertNotNull(tws2.getShortestPaths());
+//		assertEquals(tws2.getShortestPaths().size(), 3);
+//		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+//			for (Node node : tws2.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//	}
+//	
+//	@Test
+//	public void testComputeMultiStartMultiDoc() {
+//		User user = userTemp.getUser("rysmit");
+//		assertNotNull(user);
+//		TwoWordSearch tws = engine.getNodesAndPrepareClassesTwoWord("cc", "t", user);
+//		tws.compute();
+//		
+//		assertNotNull(tws.getShortestPaths());
+//		assertEquals(tws.getShortestPaths().size(), 2);
+//		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+//			for (Node node : tws.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//		
+//		//set a greater depth and empty list
+//		tws.setMaxPathDepth(40);
+//		tws.getShortestPaths().removeAll(tws.getShortestPaths());
+//		tws.compute();
+//		assertNotNull(tws.getShortestPaths());
+//		assertEquals(tws.getShortestPaths().size(), 3);
+//		for (int i = 0; i < tws.getShortestPaths().size(); i++) {
+//			for (Node node : tws.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//	}
+//	
+//	@Test
+//	public void testComputeMultiStartSingleDoc() {
+//		User user = userTemp.getUser("rysmit");
+//		TwoWordSearch tws2 = engine.getNodesAndPrepareClassesTwoWord("cc", "bb", user);
+//		assertNotNull(tws2);
+//		tws2.compute();
+//		
+//		//starting with depth of 25
+//		assertNotNull(tws2.getShortestPaths());
+//		assertEquals(tws2.getShortestPaths().size(), 2);
+//		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+//			for (Node node : tws2.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//		//set a greater depth and empty list
+//		tws2.setMaxPathDepth(40);
+//		tws2.getShortestPaths().removeAll(tws2.getShortestPaths());
+//		tws2.compute();
+//		assertNotNull(tws2.getShortestPaths());
+//		assertEquals(tws2.getShortestPaths().size(), 3);
+//		for (int i = 0; i < tws2.getShortestPaths().size(); i++) {
+//			for (Node node : tws2.getShortestPaths().get(i)) {
+//				System.out.print(node.getId() + " ");
+//			}
+//			System.out.println();
+//		}
+//	}
+
+/*TWO WORD BFS TESTS*/
 //	@Test
 //	public void testBFSTwoWordSingleStartMultiDoc() {
 //		User user = userTemp.getUser("rysmit");

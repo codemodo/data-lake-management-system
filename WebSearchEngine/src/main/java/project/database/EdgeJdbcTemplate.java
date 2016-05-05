@@ -22,7 +22,7 @@ public class EdgeJdbcTemplate {
 				"select * from edge_table " +
 				"where link_type = 'T' " +
 				"and node_1 in " +
-				"( " + createNodeIdString(nodes) + " )";
+				"( " + nodeString + " )";
 		List<Edge> edges = jdbcTemplateObject.query(SQL, new EdgeMapper());
 		return edges;
 	}
