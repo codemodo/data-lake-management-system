@@ -14,49 +14,86 @@ public class DatabaseConnector {
 
 	public static Connection conn = null;
 	public static Statement stmt = null;
+	public static boolean isTest;
 
-	public void createDocTable() {
+//	public void createDocTable() {
+//
+//		try {
+//			if(isTest) {
+//				String sql = "CREATE TABLE IF NOT EXISTS test_doc_table "
+//					+ "(doc_id INTEGER, " + "PRIMARY KEY (doc_id))";
+//				stmt.executeUpdate(sql);
+//			}		
+//
+//		} catch (SQLException ex) {
+//			// handle any errors
+//			System.err.println("Error in creating doc table.");
+//			System.out.println("SQLException: " + ex.getMessage());
+//			System.out.println("SQLState: " + ex.getSQLState());
+//			System.out.println("VendorError: " + ex.getErrorCode());
+//		}
+//	}
+	
+//	public void truncateDocTable() {
+//
+//		try {
+//			if(!isTest) {
+//				String sql = "TRUNCATE TABLE Document";
+//				stmt.executeUpdate(sql);
+//			}
+//			
+//
+//		} catch (SQLException ex) {
+//			// handle any errors
+//			System.err.println("Error in truncating document table.");
+//			System.out.println("SQLException: " + ex.getMessage());
+//			System.out.println("SQLState: " + ex.getSQLState());
+//			System.out.println("VendorError: " + ex.getErrorCode());
+//		}
+//	}
 
-		try {
-			String sql = "CREATE TABLE IF NOT EXISTS doc_table "
-					+ "(doc_id INTEGER, " + "PRIMARY KEY (doc_id))";
-
-			stmt.executeUpdate(sql);
-
-		} catch (SQLException ex) {
-			// handle any errors
-			System.err.println("Error in creating doc table.");
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-	}
-
-	public void addToDocTable(int docID) {
-		try {
-			String sql = "INSERT INTO doc_table " + "VALUES (" + docID + ")";
-			PreparedStatement ps = conn.prepareStatement(sql);
-
-			ps.executeUpdate(sql);
-
-		} catch (SQLException ex) {
-			// handle any errors
-			System.err.println("Error inserting row into doc table.");
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-	}
+//	public void addToDocTable(int docID, String username, String docName, String perm) {
+//		try {
+//			if(isTest) {
+//				String sql = "INSERT INTO test_doc_table " + "VALUES (" + docID + ")";
+//				PreparedStatement ps = conn.prepareStatement(sql);
+//				ps.executeUpdate(sql);
+//			}
+//			else {
+//				String sql = "INSERT INTO Document " + "VALUES (" + docID + ", '" + username + 
+//						"', '" + docName + "', '" + perm + "')";
+//				PreparedStatement ps = conn.prepareStatement(sql);
+//				ps.executeUpdate(sql);
+//			}
+//
+//		} catch (SQLException ex) {
+//			// handle any errors
+//			System.err.println("Error inserting row into doc table.");
+//			System.out.println("SQLException: " + ex.getMessage());
+//			System.out.println("SQLState: " + ex.getSQLState());
+//			System.out.println("VendorError: " + ex.getErrorCode());
+//		}
+//	}
 
 	public void createNodeTable() {
 
 		try {
-			String sql = "CREATE TABLE IF NOT EXISTS node_table "
+			if(isTest) {
+				String sql = "CREATE TABLE IF NOT EXISTS test_node_table "
 					+ "(node_id INTEGER, " + "k VARCHAR(255), "
 					+ "v VARCHAR(255), " + "doc_id INTEGER, "
 					+ "PRIMARY KEY (node_id))";
 
-			stmt.executeUpdate(sql);
+				stmt.executeUpdate(sql);
+			}
+			else {
+				String sql = "CREATE TABLE IF NOT EXISTS node_table "
+						+ "(node_id INTEGER, " + "k VARCHAR(255), "
+						+ "v VARCHAR(255), " + "doc_id INTEGER, "
+						+ "PRIMARY KEY (node_id))";
+
+				stmt.executeUpdate(sql);
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -67,17 +104,28 @@ public class DatabaseConnector {
 		}
 	}
 
-	public static void addToNodeTable(int nodeID, String key, String value,
-			int docID) {
+	public static void addToNodeTable(int nodeID, String key, String value, int docID) {
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO node_table "
+			if(isTest) {
+				PreparedStatement ps = conn
+					.prepareStatement("INSERT INTO test_node_table "
 							+ "VALUES (?, ?, ?, ?)");
-			ps.setInt(1, nodeID);
-			ps.setString(2, key);
-			ps.setString(3, value);
-			ps.setInt(4, docID);
-			ps.executeUpdate();
+				ps.setInt(1, nodeID);
+				ps.setString(2, key);
+				ps.setString(3, value);
+				ps.setInt(4, docID);
+				ps.executeUpdate();
+			}
+			else {
+				PreparedStatement ps = conn
+						.prepareStatement("INSERT INTO node_table "
+								+ "VALUES (?, ?, ?, ?)");
+					ps.setInt(1, nodeID);
+					ps.setString(2, key);
+					ps.setString(3, value);
+					ps.setInt(4, docID);
+					ps.executeUpdate();
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -90,21 +138,40 @@ public class DatabaseConnector {
 
 	public static void addToNodeTable(ArrayList<TreeNode> batch) {
 		try {
-			conn.setAutoCommit(false);
-			String sql = "INSERT INTO node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
-			PreparedStatement ps = conn.prepareStatement(sql);
+			if(isTest) {
+				conn.setAutoCommit(false);
+				String sql = "INSERT INTO test_node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
+				PreparedStatement ps = conn.prepareStatement(sql);
 
-			for (TreeNode node : batch) {
-				ps.setInt(1, node.nodeID);
-				ps.setString(2, node.k);
-				ps.setString(3, node.v);
-				ps.setInt(4, node.docID);
-				ps.addBatch();
+				for (TreeNode node : batch) {
+					ps.setInt(1, node.nodeID);
+					ps.setString(2, node.k);
+					ps.setString(3, node.v);
+					ps.setInt(4, node.docID);
+					ps.addBatch();
+				}
+
+				ps.executeBatch();
+				conn.commit();
+				ps.close();
 			}
+			else {
+				conn.setAutoCommit(false);
+				String sql = "INSERT INTO node_table (node_id, k, v, doc_id) VALUES (?, ?, ?, ?)";
+				PreparedStatement ps = conn.prepareStatement(sql);
 
-			ps.executeBatch();
-			conn.commit();
-			ps.close();
+				for (TreeNode node : batch) {
+					ps.setInt(1, node.nodeID);
+					ps.setString(2, node.k);
+					ps.setString(3, node.v);
+					ps.setInt(4, node.docID);
+					ps.addBatch();
+				}
+
+				ps.executeBatch();
+				conn.commit();
+				ps.close();
+			}
 		} catch (SQLException ex) {
 			// handle any errors
 			System.err.println("Error inserting row into node table.");
@@ -116,11 +183,20 @@ public class DatabaseConnector {
 
 	public void addToNodeTable(TreeNode n) {
 		try {
-			String sql = "INSERT INTO node_table " + "VALUES (" + n.nodeID
+			if(isTest) {
+				String sql = "INSERT INTO test_node_table " + "VALUES (" + n.nodeID
 					+ ", '" + n.k + "', '" + n.v + "', " + n.docID + ")";
-			PreparedStatement ps = conn.prepareStatement(sql);
+				PreparedStatement ps = conn.prepareStatement(sql);
 
-			ps.executeUpdate(sql);
+				ps.executeUpdate(sql);
+			}
+			else {
+				String sql = "INSERT INTO node_table " + "VALUES (" + n.nodeID
+						+ ", '" + n.k + "', '" + n.v + "', " + n.docID + ")";
+					PreparedStatement ps = conn.prepareStatement(sql);
+
+					ps.executeUpdate(sql);
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -133,11 +209,20 @@ public class DatabaseConnector {
 
 	public void createIITable() {
 		try {
-			String sql = "CREATE TABLE IF NOT EXISTS ii_table "
+			if(isTest) {
+				String sql = "CREATE TABLE IF NOT EXISTS test_ii_table "
 					+ "(word VARCHAR(255), " + " node_id INTEGER, "
 					+ " PRIMARY KEY (word, node_id))";
 
-			stmt.executeUpdate(sql);
+				stmt.executeUpdate(sql);
+			}
+			else {
+				String sql = "CREATE TABLE IF NOT EXISTS ii_table "
+						+ "(word VARCHAR(255), " + " node_id INTEGER, "
+						+ " PRIMARY KEY (word, node_id))";
+
+					stmt.executeUpdate(sql);
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -150,23 +235,43 @@ public class DatabaseConnector {
 	
 	public static void addToIITable(ArrayList<InvertedIndexEntry> batch) {
 		try {
-			String sql = "INSERT INTO ii_table (word, node_id) VALUES (?, ?)";
-			conn.setAutoCommit(false);
-			PreparedStatement ps = conn.prepareStatement(sql);
+			if(isTest) {
+				String sql = "INSERT INTO test_ii_table (word, node_id) VALUES (?, ?)";
+				conn.setAutoCommit(false);
+				PreparedStatement ps = conn.prepareStatement(sql);
 
-			for (InvertedIndexEntry entry : batch) {
-				ps.setString(1, entry.word);
-				ps.setInt(2, entry.nodeID);
+				for (InvertedIndexEntry entry : batch) {
+					ps.setString(1, entry.word);
+					ps.setInt(2, entry.nodeID);
+					ps.addBatch();
+				}
+		
 
-				ps.addBatch();
+				ps.executeBatch();
+				//System.out.println("execute batch");
+				conn.commit();
+				ps.close();
 			}
+			else {
+				String sql = "INSERT INTO ii_table (word, node_id) VALUES (?, ?)";
+				conn.setAutoCommit(false);
+				PreparedStatement ps = conn.prepareStatement(sql);
 
-			ps.executeBatch();
-			conn.commit();
-			ps.close();
+				for (InvertedIndexEntry entry : batch) {
+					ps.setString(1, entry.word);
+					ps.setInt(2, entry.nodeID);
+
+					ps.addBatch();
+				}
+		
+
+				ps.executeBatch();
+				conn.commit();
+				ps.close();
+			}
 		} catch (SQLException ex) {
 			// handle any errors
-			System.err.println("Error inserting row into node table.");
+			System.err.println("Error inserting row into inverted index table.");
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
@@ -175,11 +280,20 @@ public class DatabaseConnector {
 
 	public void addToIITable(String word, int nodeID) {
 		try {
-			PreparedStatement ps = conn
-					.prepareStatement("INSERT INTO ii_table VALUES (?, ?)");
-			ps.setString(1, word);
-			ps.setInt(2, nodeID);
-			ps.executeUpdate();
+			if(isTest) {
+				PreparedStatement ps = conn
+					.prepareStatement("INSERT INTO test_ii_table VALUES (?, ?)");
+				ps.setString(1, word);
+				ps.setInt(2, nodeID);
+				ps.executeUpdate();
+			}
+			else {
+				PreparedStatement ps = conn
+						.prepareStatement("INSERT INTO ii_table VALUES (?, ?)");
+				ps.setString(1, word);
+				ps.setInt(2, nodeID);
+				ps.executeUpdate();
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -194,11 +308,20 @@ public class DatabaseConnector {
 	public void createEdgeTable() {
 
 		try {
-			String sql = "CREATE TABLE IF NOT EXISTS edge_table "
+			if(isTest) {
+				String sql = "CREATE TABLE IF NOT EXISTS test_edge_table "
 					+ "(node_1 INTEGER, " + " node_2 INTEGER, "
 					+ " link_type CHAR(1)," + " PRIMARY KEY (node_1, node_2))";
 
-			stmt.executeUpdate(sql);
+				stmt.executeUpdate(sql);
+			}
+			else {
+				String sql = "CREATE TABLE IF NOT EXISTS edge_table "
+						+ "(node_1 INTEGER, " + " node_2 INTEGER, "
+						+ " link_type CHAR(1)," + " PRIMARY KEY (node_1, node_2))";
+
+					stmt.executeUpdate(sql);
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -211,23 +334,43 @@ public class DatabaseConnector {
 
 	public static void addToEdgeTable(ArrayList<Edge> batch) {
 		try {
-//			double time = System.nanoTime();
-			String sql = "INSERT INTO edge_table (node_1, node_2) VALUES (?, ?)";
-			PreparedStatement ps = conn.prepareStatement(sql);
-			conn.setAutoCommit(false);
+			if(isTest) {
+//				double time = System.nanoTime();
+				String sql = "INSERT INTO test_edge_table (node_1, node_2, link_type) VALUES (?, ?, ?)";
+				PreparedStatement ps = conn.prepareStatement(sql);
+				conn.setAutoCommit(false);
 
-			for (Edge entry : batch) {
-				ps.setInt(1, entry.node_1);
-				ps.setInt(2, entry.node_2);
-				ps.addBatch();
+				for (Edge entry : batch) {
+					ps.setInt(1, entry.node_1);
+					ps.setInt(2, entry.node_2);
+					ps.setString(3, "T");
+					ps.addBatch();
+				}
+
+				ps.executeBatch();
+				conn.commit();
+				ps.close();
 			}
+			else {
+				double time = System.nanoTime();
+				String sql = "INSERT INTO edge_table (node_1, node_2, link_type) VALUES (?, ?, ?)";
+				PreparedStatement ps = conn.prepareStatement(sql);
+				conn.setAutoCommit(false);
 
-			ps.executeBatch();
-			conn.commit();
-			ps.close();
+				for (Edge entry : batch) {
+					ps.setInt(1, entry.node_1);
+					ps.setInt(2, entry.node_2);
+					ps.setString(3, "T");
+					ps.addBatch();
+				}
+
+				ps.executeBatch();
+				conn.commit();
+				ps.close();
+			}
 		} catch (SQLException ex) {
 			// handle any errors
-			System.err.println("Error inserting row into node table.");
+			System.err.println("Error inserting row into edge table.");
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("SQLState: " + ex.getSQLState());
 			System.out.println("VendorError: " + ex.getErrorCode());
@@ -236,19 +379,37 @@ public class DatabaseConnector {
 
 	public static void addToEdgeTable(int parentNode, int childNode, char type) {
 		try {
-			String sql = "SELECT * FROM edge_table WHERE node_1=" + parentNode
+			if(isTest) {
+				String sql = "SELECT * FROM test_edge_table WHERE node_1=" + parentNode
 					+ " AND node_2=" + childNode;
-			PreparedStatement ps = conn.prepareStatement(sql);
+				PreparedStatement ps = conn.prepareStatement(sql);
 
-			ResultSet rs = ps.executeQuery();
-			if (rs.next()) {
-				System.err
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					System.err
 						.println("This edge pair already exists in database.");
-			} else {
-				sql = "INSERT INTO edge_table " + "VALUES (" + parentNode
+				} else {
+					sql = "INSERT INTO test_edge_table " + "VALUES (" + parentNode
 						+ ", " + childNode + ", '" + type + "')";
-				ps = conn.prepareStatement(sql);
-				ps.executeUpdate(sql);
+					ps = conn.prepareStatement(sql);
+					ps.executeUpdate(sql);
+				}
+			}
+			else {
+				String sql = "SELECT * FROM edge_table WHERE node_1=" + parentNode
+						+ " AND node_2=" + childNode;
+				PreparedStatement ps = conn.prepareStatement(sql);
+
+				ResultSet rs = ps.executeQuery();
+				if (rs.next()) {
+					System.err
+						.println("This edge pair already exists in database.");
+				} else {
+					sql = "INSERT INTO edge_table " + "VALUES (" + parentNode
+						+ ", " + childNode + ", '" + type + "')";
+					ps = conn.prepareStatement(sql);
+					ps.executeUpdate(sql);
+				}
 			}
 
 		} catch (SQLException ex) {
@@ -261,11 +422,11 @@ public class DatabaseConnector {
 	}
 
 	public void addToEdgeTable(int parentNode, int childNode) {
-		addToEdgeTable(parentNode, childNode, 'T');
+		addToEdgeTable(parentNode, childNode);
 	}
 
 	public void addToEdgeTable(Edge e) {
-		addToEdgeTable(e.node_1, e.node_2, 'T');
+		addToEdgeTable(e.node_1, e.node_2);
 	}
 
 	// public int getWordId(String word) {
@@ -291,14 +452,60 @@ public class DatabaseConnector {
 	public int getMaxNodeId() {
 		int id = -1;
 		try {
-			String sql = "SELECT MAX(node_id) AS maxId FROM node_table";
-			ResultSet rs = stmt.executeQuery(sql);
-			if (rs.next()) {
-				id = rs.getInt("maxId");
-			} else {
-				id = 0;
-			}
+			if(isTest) {
+				String sql = "SELECT MAX(node_id) AS maxId FROM test_node_table";
+				ResultSet rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					id = rs.getInt("maxId");
+				} else {
+					id = 0;
+				}
 			// System.out.println("id is " + id);
+			}
+			else {
+				String sql = "SELECT MAX(node_id) AS maxId FROM node_table";
+				ResultSet rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					id = rs.getInt("maxId");
+				} else {
+					id = 0;
+				}
+			// System.out.println("id is " + id);
+			}
+
+		} catch (SQLException ex) {
+			// handle any errors
+			System.err.println("Error getting max nodeId.");
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		return id;
+	}
+	
+	public int getMaxDocId() {
+		int id = -1;
+		try {
+			if(isTest) {
+				String sql = "SELECT MAX(doc_id) AS maxId FROM test_doc_table";
+				ResultSet rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					id = rs.getInt("maxId");
+				} else {
+					id = 0;
+				}
+			// System.out.println("id is " + id);
+			}
+			else {
+				String sql = "SELECT MAX(doc_id) AS maxId FROM Document";
+				ResultSet rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					id = rs.getInt("maxId");
+				} else {
+					id = 0;
+				}
+			// System.out.println("id is " + id);
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -313,14 +520,26 @@ public class DatabaseConnector {
 	public int getMaxWordId() {
 		int id = -1;
 		try {
-			String sql = "SELECT MAX(word_id) AS maxId FROM word_table";
-			ResultSet rs = stmt.executeQuery(sql);
-			if (rs.next()) {
-				id = rs.getInt("maxId");
-			} else {
-				id = 0;
+			if(isTest) {
+				String sql = "SELECT MAX(word_id) AS maxId FROM test_word_table";
+				ResultSet rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					id = rs.getInt("maxId");
+				} else {
+					id = 0;
+				}
+				// System.out.println("id is " + id);
 			}
-			// System.out.println("id is " + id);
+			else {
+				String sql = "SELECT MAX(word_id) AS maxId FROM word_table";
+				ResultSet rs = stmt.executeQuery(sql);
+				if (rs.next()) {
+					id = rs.getInt("maxId");
+				} else {
+					id = 0;
+				}
+				// System.out.println("id is " + id);
+			}
 
 		} catch (SQLException ex) {
 			// handle any errors
@@ -332,7 +551,8 @@ public class DatabaseConnector {
 		return id;
 	}
 
-	public void createConnection() {
+	public void createConnection(boolean b) {
+		isTest = b;
 		try {
 
 			conn = DriverManager
@@ -388,18 +608,6 @@ public class DatabaseConnector {
 		}
 	}
 
-	public void getColumnNames(String table) {
-		try {
-
-			DatabaseMetaData dbmd = conn.getMetaData();
-			ResultSet rs = dbmd.getColumns(null, null, "edge_table", null);
-			while (rs.next()) {
-				System.out.println(rs.getString("COLUMN_NAME"));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public void deleteTable(String table) {
 		try {

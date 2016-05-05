@@ -18,15 +18,16 @@ import org.apache.commons.lang.math.NumberUtils;
 
 public class CommonsCSVParser extends DataParser {
 	static int nextNodeID;
+	static int docID;
 
-	public static boolean parseWithCommonsCSV(File file) {
+	public static boolean parseWithCommonsCSV(File file, int doc, String docName) {
 		try {
 			CSVParser parser = new CSVParser(new FileReader(file),
 					CSVFormat.DEFAULT.withHeader());
 			Map<String, Integer> headers = parser.getHeaderMap();
-			int docID = getDocID(file);
+			docID = doc;
 			nextNodeID = dbc.getMaxNodeId() + 1;
-			nodeList.addToList(nextNodeID, "", "", docID);
+			nodeList.addToList(nextNodeID, docName, "", docID);
 			int rootID = nextNodeID;
 			int rowNum = 0;
 			for (CSVRecord record : parser) {
@@ -45,7 +46,7 @@ public class CommonsCSVParser extends DataParser {
 
 					addToInvertedIndex(key, value, nextNodeID);
 				}
-				if (rowNum % 50 == 0) {
+				if (rowNum % 500 == 0) {
 					System.out.println("read through " + rowNum + " rows");
 				}
 
@@ -60,22 +61,6 @@ public class CommonsCSVParser extends DataParser {
 		}
 
 		return true;
-	}
-
-	static void addToInvertedIndex(String key, String value, int nodeID) {
-
-		String[] keyParts = key.split("\\s+");
-		String[] valueParts = value.split("\\s+");
-		Set<String> uniqueWords = new HashSet<String>(Arrays.asList(keyParts));
-		for (String s : valueParts) {
-			uniqueWords.add(s);
-		}
-
-		for (String s : uniqueWords) {
-			if (!NumberUtils.isNumber(s)) {
-				indexList.addToList(s, nodeID);
-			}
-		}
 	}
 
 }

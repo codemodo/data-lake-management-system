@@ -1,5 +1,5 @@
 <EmployeeSalaries>
-		<Employee name="Rosemary">
+		<Employee type="fulltime" tenured="yes">
 			<LastName languagecode="en">Chiliberti</LastName>
 			<FirstName>Rosemary</FirstName>
 			<Title>ADM TECHNICIAN III</Title>

@@ -26,5 +26,14 @@ public class InvIndexList {
 	public void addToList(String word, int nodeID) {
 		this.addToList(new InvertedIndexEntry(word, nodeID));
 	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		for (InvertedIndexEntry e : entries){
+			sb.append(e.toString() + "\n");
+		}
+		return sb.toString();
+	}
 
 }

@@ -9,5 +9,10 @@ public class Edge {
 		this.node_1 = node_1;
 		this.node_2 = node_2;
 	}
+	
+	@Override
+	public String toString(){
+		return node_1 + "->" + node_2;
+	}
 
 }

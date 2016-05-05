@@ -8,5 +8,11 @@ public class InvertedIndexEntry {
 		word = w;
 		nodeID = n;
 	}
+	
+	@Override
+	public String toString(){
+
+		return "word: " + word + ", id: " + nodeID;
+	}
 
 }

@@ -26,5 +26,14 @@ public class NodeList {
 	public void addToList(int nodeID, String key, String value, int docID) {
 		this.addToList(new TreeNode(nodeID, key, value, docID));
 	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		for (TreeNode n : entries){
+			sb.append(n.toString() + "\n");
+		}
+		return sb.toString();
+	}
 
 }

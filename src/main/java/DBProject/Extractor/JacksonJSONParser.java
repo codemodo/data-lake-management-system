@@ -19,19 +19,17 @@ public class JacksonJSONParser extends DataParser {
 	public static int docId;
 	public static int nextNodeId;
 
-	public static boolean parseWithJackson(File file,
-			DatabaseConnector databaseConnector) {
-		dbc = databaseConnector;
+	public static boolean parseWithJackson(File file, int doc, String docName) {
+		
 
-		docId = getDocID(file);
-
+		docId = doc;
 		nextNodeId = dbc.getMaxNodeId() + 1;
 		// nextNodeId = 1;
 		// System.out.println("next nodeId is: " + nextNodeId);
 		int nid = nextNodeId;
 		ObjectMapper m = new ObjectMapper();
 		JsonNode rootNode;
-		TreeNode n = new TreeNode(nid, "", "", docId);
+		TreeNode n = new TreeNode(nid, docName, "", docId);
 		nodeList.addToList(n);
 		nextNodeId++;
 		// System.out.println("Added to doc root to node table, id=" + (nid));
@@ -75,10 +73,11 @@ public class JacksonJSONParser extends DataParser {
 				// System.out.println("Added to edge table:\tparentId: " +
 				// parentNodeId + "\tchildNodeId: " + nid);
 			} else if (t.equals(JsonNodeType.ARRAY)) {
-				// System.out.println("not a string");
+				//System.out.println("this is an array");
 				TreeNode n = new TreeNode(nid, nodeKey, nodeValue, docId);
 				nodeList.addToList(n);
 				addToInvertedIndex(n);
+				//System.out.println("nodeKey: " + nodeKey + " nodeValue: " + nodeValue );
 				// System.out.println("Added to node table:\tId: " + nid +
 				// "\tKey: " + nodeKey + "\tValue: " + nodeValue);
 				Edge e = new Edge(parentNodeId, nid);
@@ -88,7 +87,19 @@ public class JacksonJSONParser extends DataParser {
 				Iterator<JsonNode> childNodes = field.getValue().elements();
 				while (childNodes.hasNext()) {
 					JsonNode child = childNodes.next();
-					parseJsonTree2(child, nid);
+					//System.out.println("child text: " + child.asText());
+					if(child.isTextual()) {
+						n = new TreeNode(nextNodeId, child.asText(), "", docId);
+						nextNodeId++;
+						nodeList.addToList(n);
+						addToInvertedIndex(n);
+						e = new Edge(nid, n.nodeID);
+						edgeList.addToList(e);
+						//System.out.println("added everything");
+					}
+					else {
+						parseJsonTree2(child, nid);
+					}
 				}
 			} else {
 				// System.out.println("not a string or array");
@@ -111,26 +122,6 @@ public class JacksonJSONParser extends DataParser {
 		}
 	}
 
-	static void addToInvertedIndex(TreeNode n) {
-		String key = n.k;
-		String value = n.v;
-		int id = n.nodeID;
-		addToInvertedIndex(key, value, id);
-	}
-
-	static void addToInvertedIndex(String key, String value, int nodeID) {
-		String[] keyParts = key.split("\\s+");
-		String[] valueParts = value.split("\\s+");
-		Set<String> uniqueWords = new HashSet<String>(Arrays.asList(keyParts));
-		for (String s : valueParts) {
-			uniqueWords.add(s);
-		}
-
-		for (String s : uniqueWords) {
-			if (!NumberUtils.isNumber(s)) {
-				indexList.addToList(s, nodeID);
-			}
-		}
-	}
+	
 
 }
