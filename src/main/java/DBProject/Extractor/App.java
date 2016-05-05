@@ -61,9 +61,9 @@ public class App {
 			JaxpXMLParser.parseWithJaxp(file, docId, docName);
 		}
 		else {
-			TikaParser.parseWithTika(file);
+			System.err.println("This file format is not supported.");
 		}
-//		printTables();
+		//printTables();
 		return true;
 	}
 	
@@ -76,14 +76,22 @@ public class App {
 	}
 	
 	public static void main(String[] args) {
-		String[] arguments = args[0].split(" ");
-		int docId = Integer.parseInt(arguments[0]);
-		String docName = arguments[1];
+//		String[] arguments = args[0].split(" ");
+//		int docId = Integer.parseInt(arguments[0]);
+		int docId = 347;
+//		String docName = arguments[1];
+//		String docName = "Employee_Salaries_-_March_2016_test.xml";
+//		String docName = "philaHistoricSites.xml";
+//		String docName = "CityPhotoData.csv";
+//		String docName = "Phila_Health_Centers.csv";
+		String docName = "DocData.csv";
 		String extension = getFileExtension(docName);
-		String path = arguments[2];
-		File input = new File(path);
+//		String path = arguments[2];
+//		File input = new File(path);
+		File input = new File(docName);
 		dbc.createConnection(isTest);
 		parseFile(input, dbc, docId, docName, extension);
+		//printTables();
 		dbc.closeConnection();
 	}
 }

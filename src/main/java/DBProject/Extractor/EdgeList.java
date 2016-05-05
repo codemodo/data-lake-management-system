@@ -26,5 +26,14 @@ public class EdgeList {
 	public void addToList(int node1, int node2) {
 		this.addToList(new Edge(node1, node2));
 	}
+	
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		for (Edge n : entries){
+			sb.append(n.toString() + "\n");
+		}
+		return sb.toString();
+	}
 
 }

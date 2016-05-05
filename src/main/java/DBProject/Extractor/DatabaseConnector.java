@@ -106,7 +106,13 @@ public class DatabaseConnector {
 
 	public static void addToNodeTable(int nodeID, String key, String value, int docID) {
 		try {
-			if(isTest) {
+			if(key.length() > 255) {
+				key = key.substring(0,254);
+			}
+			if(value.length() > 255) {
+				value = value.substring(0,254);
+			}
+				if(isTest) {
 				PreparedStatement ps = conn
 					.prepareStatement("INSERT INTO test_node_table "
 							+ "VALUES (?, ?, ?, ?)");
@@ -144,6 +150,12 @@ public class DatabaseConnector {
 				PreparedStatement ps = conn.prepareStatement(sql);
 
 				for (TreeNode node : batch) {
+					if(node.k.length() > 255) {
+						node.k = node.k.substring(0,254);
+					}
+					if(node.v.length() > 255) {
+						node.v = node.v.substring(0,254);
+					}
 					ps.setInt(1, node.nodeID);
 					ps.setString(2, node.k);
 					ps.setString(3, node.v);
@@ -241,6 +253,9 @@ public class DatabaseConnector {
 				PreparedStatement ps = conn.prepareStatement(sql);
 
 				for (InvertedIndexEntry entry : batch) {
+					if(entry.word.length() > 255) {
+						entry.word = entry.word.substring(0,254);
+					}
 					ps.setString(1, entry.word);
 					ps.setInt(2, entry.nodeID);
 					ps.addBatch();
@@ -280,6 +295,9 @@ public class DatabaseConnector {
 
 	public void addToIITable(String word, int nodeID) {
 		try {
+			if(word.length() > 255) {
+				word = word.substring(0,254);
+			}
 			if(isTest) {
 				PreparedStatement ps = conn
 					.prepareStatement("INSERT INTO test_ii_table VALUES (?, ?)");

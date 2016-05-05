@@ -27,7 +27,9 @@ public class CommonsCSVParser extends DataParser {
 			Map<String, Integer> headers = parser.getHeaderMap();
 			docID = doc;
 			nextNodeID = dbc.getMaxNodeId() + 1;
-			nodeList.addToList(nextNodeID, docName, "", docID);
+			TreeNode t = new TreeNode(nextNodeID, docName, "", docID);
+			nodeList.addToList(t);
+			addToInvertedIndex(t);
 			int rootID = nextNodeID;
 			int rowNum = 0;
 			for (CSVRecord record : parser) {

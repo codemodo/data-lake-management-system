@@ -18,7 +18,6 @@ public class JaxpXMLParser extends DataParser {
 
 	static boolean parseWithJaxp(File file, int doc, String docName) {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		// dbf.setValidating(true);
 		dbf.setNamespaceAware(true);
 
 		try {
@@ -28,11 +27,12 @@ public class JaxpXMLParser extends DataParser {
 			nextNodeID = dbc.getMaxNodeId() + 1;
 			Node root = document.getDocumentElement();
 			TreeNode n = new TreeNode(nextNodeID, docName, "", docID);
-			//nextNodeID++;
 			nodeList.addToList(n);
+			addToInvertedIndex(n);
 			parseWithJaxp(root, n.nodeID);
-			System.out.println(nodeList.toString());
-			//System.out.println(edgeList.toString());
+			finishAllRemainingBatches();
+//			System.out.println(nodeList.toString());
+//			System.out.println(edgeList.toString());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -41,43 +41,37 @@ public class JaxpXMLParser extends DataParser {
 	}
 
 	static void parseWithJaxp(Node node, int parentNodeID) {
-		// TreeNode treeNode = new TreeNode(docID, null, null, docID);
-		// dbc.addToNodeTable(treeNode);
 		String key = "";
 		String value = "";		
 		int nodeID = nextNodeID;
-		if(nodeID == 6) {
-			System.out.println("a");
-		}
 		if (node.getNodeType() == Node.ELEMENT_NODE) {
 			nextNodeID++;
-			if(nextNodeID == 6) {
-				System.out.println("a");
-			}
 			nodeID = nextNodeID;
 			Element elem = (Element) node;
-			// System.out.println("TagName: " + elem.getTagName());
 			key = elem.getTagName();
 			value = "";
-			TreeNode n = new TreeNode(nodeID, key, value, docID);
+			TreeNode n = null;
+			if(node.getChildNodes().getLength() != 1) {
+				n = new TreeNode(nodeID, key, value, docID);
+			}
+			else {
+				n = new TreeNode(nodeID, key, node.getTextContent(), docID);
+			}
 			nodeList.addToList(n);
+			addToInvertedIndex(n);
 			Edge e = new Edge(parentNodeID, nodeID);
 			edgeList.addToList(e);
+			
 			NamedNodeMap attrs = elem.getAttributes();
 			if (attrs != null) {
 				for (int i = 0; i < attrs.getLength(); i++) {
 					Attr a = (Attr) attrs.item(i);
-					// System.out.println("attr key: " + a.getName());
-					// System.out.println("attr value: " + a.getValue());
 					nextNodeID++;
-					if(nextNodeID == 6) {
-						System.out.println("a");
-					}
 					edgeList.addToList(nodeID, nextNodeID);
-					nodeList.addToList(nextNodeID, a.getName(), a.getValue(),
+					TreeNode t = new TreeNode(nextNodeID, a.getName(), a.getValue(),
 							docID);
-					// System.out.println("Adding node with key " + a.getName()
-					// + " and value " + a.getValue());
+					nodeList.addToList(t);
+					addToInvertedIndex(t);
 				}
 			}
 		} else {
@@ -85,13 +79,7 @@ public class JaxpXMLParser extends DataParser {
 					.trim();
 		}
 
-		//nodeList.addToList(nodeID, key, value, docID);
-		// System.out.println("Adding node with key " + key + " and value " +
-		// value);
-		//edgeList.addToList(parentNodeID, nodeID);
-
 		NodeList children = node.getChildNodes();
-
 		if (children != null) {
 			for (int i = 0; i < children.getLength(); i++) {
 				parseWithJaxp(children.item(i), nodeID);
