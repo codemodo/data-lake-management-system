@@ -43,59 +43,83 @@ import java.util.Map;
  *
  */
 public class App {
+	
+	public static boolean isTest = true;
 
 	static DatabaseConnector dbc = new DatabaseConnector();
 
-	public static void main(String[] args) {
-		// File input = new File(args[0]);
-		// File input = new File(
-		// "/Users/joshkessler/Documents/workspace/Extractor/CustomerSvcCalls.json");
-//		File input = new File(
-//				"/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.xml");
-//		File input = new File(
-//				"/Users/joshkessler/Documents/workspace/Extractor/philaHistoricSites.xml");
-//		 File input = new File(
-//		 "/Users/joshkessler/Documents/workspace/Extractor/Employee_Salaries_-_March_2016_test.json");
-		File input = new File("Operating_Budget_-_FY2017_Proposed.csv");
-		File input2 = new File ("parks_sample.csv");
-		File input3 = new File("Phila_Health_Centers.csv");
-		File input4 = new File("national_dialysis_sample.csv");
-		
+	public static void deleteTables() {
+		if(isTest) {
+			dbc.deleteTable("test_ii_table");
+			dbc.deleteTable("test_edge_table");
+			dbc.deleteTable("test_node_table");
+			dbc.deleteTable("test_doc_table");
+		}
+		else {
+			dbc.deleteTable("ii_table");
+			dbc.deleteTable("edge_table");
+			dbc.deleteTable("node_table");
+			dbc.deleteTable("doc_table");
+		}
 
-		dbc.createConnection();
-//		dbc.deleteTable("ii_table");
-//		dbc.deleteTable("edge_table");
-//		dbc.deleteTable("node_table");
-//		dbc.deleteTable("doc_table");
-		
-//		dbc.createDocTable();
-//		dbc.createNodeTable();
-//		dbc.createEdgeTable();
-//		dbc.createIITable();
-		
-		parseFile(input, dbc);
-		parseFile(input2, dbc);
-		parseFile(input3, dbc);
-		parseFile(input4, dbc);
-
-//		dbc.printTable("node_table");
-//		dbc.printTable("edge_table");
-//		dbc.printTable("ii_table");
-//		dbc.printTable("doc_table");
-		dbc.closeConnection();
 	}
-
+	
+	public static void createTables() {
+		if(isTest){
+			dbc.createDocTable();
+			dbc.createNodeTable();
+			dbc.createEdgeTable();
+			dbc.createIITable();
+		}
+		else {
+			dbc.deleteTable("ii_table");
+			dbc.deleteTable("edge_table");
+			dbc.deleteTable("node_table");
+			dbc.deleteTable("doc_table");
+		}
+	}
+	
+	
+	public static void printTables() {
+		if(isTest) {
+			dbc.printTable("test_node_table");
+			dbc.printTable("test_edge_table");
+			dbc.printTable("test_ii_table");
+			dbc.printTable("test_doc_table");
+		}
+		else {
+			dbc.printTable("node_table");
+			dbc.printTable("edge_table");
+			dbc.printTable("ii_table");
+			dbc.printTable("doc_table");
+		}
+	}
+	
 	public static boolean parseFile(File file, DatabaseConnector dbc) {
-		if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
-			//if (!JaxpXMLParser.parseWithJaxp(file)) {
+//		if (!CommonsCSVParser.parseWithCommonsCSV(file)) {
+			//if (!
+		JaxpXMLParser.parseWithJaxp(file);//) {
 				//if (!
-//						JacksonJSONParser.parseWithJackson(file, dbc);
+						//JacksonJSONParser.parseWithJackson(file, dbc);
 						//) {
 					//return TikaParser.parseWithTika(file);
 				//}
 			//}
-		}
+//		}
 
 		return true;
+	}
+	
+	public static void main(String[] args) {
+		//File input = new File("json_ex.json");
+		//File input = new File("City_Facilities_pub.geojson");
+		File input = new File("phila_housing.rss");
+
+		dbc.createConnection(isTest);
+		deleteTables();
+		createTables();
+		parseFile(input, dbc);
+		printTables();
+		dbc.closeConnection();
 	}
 }
