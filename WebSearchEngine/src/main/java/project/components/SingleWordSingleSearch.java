@@ -39,6 +39,9 @@ public class SingleWordSingleSearch {
 	
 	public JSONArray getNodesJson() {
 		JSONArray jArray = new JSONArray();
+		if (pathFromRoot == null)
+			return jArray;
+		System.out.println();
 		List<Node> displayPath;
 		if (pathFromRoot.size() > MAX_DISPLAY_LENGTH) {
 			displayPath = pathFromRoot.subList(pathFromRoot.size() - MAX_DISPLAY_LENGTH, pathFromRoot.size());
@@ -48,15 +51,33 @@ public class SingleWordSingleSearch {
 		for (Node node : displayPath) {
 			JSONObject nodeJson = new JSONObject();
 			nodeJson.put("id", node.getId());
-			nodeJson.put("label", node.getKey() + ", " + node.getValue());
+			nodeJson.put("label", getNodeDisplayString(node));
 			jArray.add(nodeJson);
 		}
 		nodesJson = jArray;
 		return jArray;
 	}
 	
+	private String getNodeDisplayString(Node node) {
+		if (node == null)
+			return "";
+		String nodeString = "";
+		boolean insertComma = false;
+		if (node.getKey() != null) {
+			nodeString += node.getKey();
+			insertComma = true;
+		}
+		if (insertComma)
+			nodeString += ", ";
+		if (node.getValue() != null)
+			nodeString += node.getValue();
+		return nodeString;
+	}
+	
 	public JSONArray getEdgesJson() {
 		JSONArray jArray = new JSONArray();
+		if (pathFromRoot == null)
+			return jArray;
 		List<Node> displayPath;
 		if (pathFromRoot.size() > MAX_DISPLAY_LENGTH) {
 			displayPath = pathFromRoot.subList(pathFromRoot.size() - MAX_DISPLAY_LENGTH, pathFromRoot.size());
@@ -83,8 +104,8 @@ public class SingleWordSingleSearch {
 		while (!queue.isEmpty()) {
 			ArrayList<Node> path = queue.poll();
 			Node nextNode = path.get(path.size() - 1);
-			if ((nextNode.getKey() != null && nextNode.getKey().equalsIgnoreCase(searchTerm)) ||
-					(nextNode.getValue() != null && nextNode.getValue().equalsIgnoreCase(searchTerm))) {
+			if ((nextNode.getKey() != null && nextNode.getKey().toLowerCase().indexOf(searchTerm.toLowerCase()) > -1) ||
+					(nextNode.getValue() != null && nextNode.getValue().toLowerCase().indexOf(searchTerm.toLowerCase()) > -1)) {
 				return path;
 			}
 			

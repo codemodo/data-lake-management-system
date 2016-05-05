@@ -40,6 +40,17 @@
   
 
   <dependencies>
+  <dependency>
+	<groupId>org.apache.activemq</groupId>
+	<artifactId>activemq-core</artifactId>
+	<version>5.7.0</version>
+</dependency>
+  <dependency>
+	<groupId>org.apache.activemq</groupId>
+	<artifactId>activemq-spring</artifactId>
+	<version>5.13.2</version>
+</dependency>
+  
   <!-- JSON Simple -->
 	  <dependency>
 		<groupId>com.googlecode.json-simple</groupId>
@@ -72,6 +83,12 @@
 		<version>2.5</version>
 	</dependency>
     <!-- All Spring -->
+    <dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-jms</artifactId>
+		<version>4.2.5.RELEASE</version>
+	</dependency>
+    
   	<dependency>
   		<groupId>org.springframework</groupId>
   		<artifactId>spring-aop</artifactId>

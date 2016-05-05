@@ -1,5 +1,9 @@
 package project.database;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +11,9 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 
 public class DocumentJdbcTemplate {
 	private DataSource dataSource;
@@ -27,6 +34,26 @@ public class DocumentJdbcTemplate {
 		String SQL = "select * from Document where id = ?";
 		Document doc = jdbcTemplateObject.queryForObject(SQL, new Object[]{id}, new DocumentMapper());
 		return doc;
+	}
+	
+	public int createAndReturnKey(String username, String name) {
+		final String insertIntoSql = "insert into Document (username, name) values ('" + username + "', '" + name + "')";
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+
+		jdbcTemplateObject.update(
+		  new PreparedStatementCreator() {
+		    public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		      return connection.prepareStatement(insertIntoSql, Statement.RETURN_GENERATED_KEYS);
+		    }
+		  }, keyHolder);
+
+		return keyHolder.getKey().intValue();
+	}
+	
+	public Document getMaxDocID() {
+		String SQL = "select * from Document where id = (select max(id) from Document)";
+		List<Document> doc = jdbcTemplateObject.query(SQL, new DocumentMapper());
+		return doc.get(0);
 	}
 	
 	public List<Document> getAllDocs() {
@@ -76,7 +103,7 @@ public class DocumentJdbcTemplate {
 				  "( " +
 				   " select node_id " +
 				    "from ii_table " +
-				   " where word_id = ? " +
+				   " where word = ? " +
 				  ")  " +
 				");";
 		List<Document> docs = jdbcTemplateObject.query(SQL, new Object[]{charString, searchTerm}, new DocumentMapper());
@@ -99,7 +126,7 @@ public class DocumentJdbcTemplate {
 				  "( " +
 				   " select node_id " +
 				    "from ii_table " +
-				   " where word_id = ? " +
+				   " where word = ? " +
 				  ")  " +
 				");";
 		List<Document> permissionDocs = jdbcTemplateObject.query(SQL, new Object[]{searchTerm}, new DocumentMapper());
@@ -115,7 +142,7 @@ public class DocumentJdbcTemplate {
 				  "( " +
 				   " select node_id " +
 				    "from ii_table " +
-				   " where word_id = ? " +
+				   " where word = ? " +
 				  ")  " +
 				");";
 		List<Document> userDocs = jdbcTemplateObject.query(SQL, new Object[]{user.getUsername(), searchTerm}, new DocumentMapper());

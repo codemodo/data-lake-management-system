@@ -62,6 +62,12 @@ public class DatabaseTest extends TestCase {
 	}
 	
 	@Test
+	public void testInsertAndRetrieve() {
+		int val = docJdbc.createAndReturnKey("rysmit", "new_test");
+		System.out.println(val);
+	}
+	
+	@Test
 	public void testQueryForDocs() {
 		List<Document> docs = docJdbc.getDocsByTermAndPerm("a", 'A');
 		assertEquals(docs.size(), 1);

@@ -102,11 +102,11 @@ public class TwoWordSearch {
 		startNodes = new HashSet<Node>();
 		targetNodes = new HashSet<Node>();
 		for (Node node : adjacencyList.keySet()) {
-			if ((node.getKey() != null && node.getKey().equalsIgnoreCase(searchTerm1)) ||
-					(node.getValue() != null && node.getValue().equalsIgnoreCase(searchTerm1)))
+			if ((node.getKey() != null && node.getKey().toLowerCase().indexOf(searchTerm1.toLowerCase()) > -1) ||
+					(node.getValue() != null && node.getValue().toLowerCase().indexOf(searchTerm1.toLowerCase()) > -1))
 				startNodes.add(node);
-			else if ((node.getKey() != null && node.getKey().equalsIgnoreCase(searchTerm2)) ||
-					(node.getValue() != null && node.getValue().equalsIgnoreCase(searchTerm2)))
+			else if ((node.getKey() != null && node.getKey().toLowerCase().indexOf(searchTerm2.toLowerCase()) > -1) ||
+					(node.getValue() != null && node.getValue().toLowerCase().indexOf(searchTerm2.toLowerCase()) > -1))
 				targetNodes.add(node);
 		}
 	}

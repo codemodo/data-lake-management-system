@@ -17,9 +17,11 @@
 <body>
 	
 	<div id="top-bar">
-		<h2 id="header-title">
-			550 Data Lake 
-		</h2>
+		<a href="/">
+			<h2 id="header-title">
+				550 Data Lake 
+			</h2>
+		</a>
 		<c:choose>
 	  		<c:when test="${!isLoggedIn}">
 				<div class="bar-button-box">
