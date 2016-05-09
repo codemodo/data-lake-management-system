@@ -1,0 +1,49 @@
+{"Employee salaries":[
+{
+"Last Name" : "Chiliberti",
+"First Name" : "Rosemary",
+"Title" : "ADM TECHNICIAN III",
+"Department" : "COMMON PLEAS COURT",
+"Annual Salary" : "$50,543.00",
+"YTD Overtime Gross" : "$0.00"
+},
+
+{
+"Last Name" : "SMITH",
+"First Name" : "KARI",
+"Title" : "SENIOR CREW CHIEF",
+"Department" : "MANAGING DIRECTORS OFFICE",
+"Annual Salary" : "$34,842.00",
+"YTD Overtime Gross" : "$0.00"
+},
+
+{
+"Last Name" : "BRUMSKILL",
+"First Name" : "SANDRA",
+"Title" : "SCHOOL CROSSING GUARD",
+"Department" : "POLICE DEPARTMENT",
+"Annual Salary" : "$0.00",
+"YTD Overtime Gross" : "$0.00"
+},
+
+{
+"Last Name" : "ALEXANDER",
+"First Name" : "KHADEJAH",
+"Title" : "CLERK TEMPORARY-SUMMER-$7.00/HR.",
+"Department" : "COMMON PLEAS COURT",
+"Annual Salary" : "$50,543.00",
+"YTD Overtime Gross" : "$0.00"
+},
+
+{
+"Last Name" : "HILL",
+"First Name" : "SEAN",
+"Title" : "PROBATION OFFICER 2",
+"Department" : "COMMON PLEAS COURT",
+"Annual Salary" : "$56,206.00",
+"YTD Overtime Gross" : "$0.00"
+}
+
+]
+	
+}
